@@ -1,0 +1,338 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content = 'IE=edge'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ProjectAIVA</title>
+    <link href = "/static/css/me.css?detail=12" rel = 'stylesheet'/>
+    <link href = "/static/css/bootstrap.css?detail=2" rel = 'stylesheet'/>
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css?q=1280549780">
+    <script type = "text/javascript" src = "/static/js/jquery-3.1.0.js?q=1280549780"></script>
+    <script type = "text/javascript" src = "/static/js/bootstrap.js?q=1280549780"></script>
+    <script src="/static/js/bootstrap-select.js"></script>
+  </head>
+  <body>
+    {% include 'hola_ads/head.htm' %}
+    <div id = 'select_area'>
+      <select class="selectpicker"  id = 'type_selecter' data-size="5" title = "type" onchange = 'refresh()'>
+<!--         <option data-subtext="Heinz">Ketchup</option> -->
+      </select>
+      <select class="selectpicker" id = 'country_selecter' data-live-search="true" data-size="10" title = "country" onchange = 'refresh()'>
+
+      </select>
+      <select class="selectpicker" id = 'date_selecter' data-live-search="true" data-size="10" title = "date" onchange = 'refresh()'>
+
+      </select>
+      <select class="selectpicker" id = 'page_selecter' data-live-search="true" data-size="10" title = "page">
+
+      </select>
+      <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal" data-target="#myModal">
+        Query
+      </button>
+    </div>
+    <div>
+      <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Count : <span id = 'ads_now_num'></span></h1>
+    </div>
+    <div id = 'ads_detail'>
+      <table id = 'ads_detail_table'>
+        
+      </table>
+    </div>
+    <div id = 'ads_table'></div>
+  </body>
+  <script type="text/javascript">
+    function get_count(){
+      $.ajax({
+      url : "/pyanalysis/pyquery",
+      method : 'post',
+      data : {
+        'typical' : 'count_county_type_day'
+      },
+      dataType : 'json',
+      success : function(data){
+        export_count_to_dropdown(data);
+      },
+      error : function(err){
+        alert(err);
+      }
+    });
+    }
+    function export_count_to_dropdown(data){
+      var results = eval(data);
+      var type_results = eval(results[0]);
+      var geo_results = eval(results[1]);
+      var date_results = eval(results[2]);
+      var count = eval(results[3])[0][0];
+      $('#ads_now_num').html(count);
+      $('#country_selecter').html('');
+      $('#date_selecter').html('');
+      $('#page_selecter').html('');
+      var type_results_str = '';
+      for(var index in type_results){
+        type_results_str += '<option data-subtext = "' + type_results[index][1] + '">' + type_results[index][0] + '</option>';
+      }
+      $('#type_selecter').html(type_results_str);
+      var geo_results_str = '';
+      for(var index in geo_results){
+        geo_results
+        geo_results_str += '<option data-subtext = "' + geo_results[index][1] + '">' + geo_results[index][0] + '</option>';
+      }
+      $('#country_selecter').html(geo_results_str);
+      var date_results_str = '';
+      for(var index in date_results){
+        date_results_str += '<option data-subtext = "' + date_results[index][1] + '">' + date_results[index][0] + '</option>';
+      }
+      $('#date_selecter').html(date_results_str);
+      var page_results_str = '';
+      for(var i = Math.ceil(count / 10); i > 0; i --){
+        page_results_str += '<option data-subtext = "' + 'page' + '">' + i + '</option>';
+      }
+      $('#page_selecter').html(page_results_str);
+      $('#type_selecter').selectpicker('refresh');
+      $('#country_selecter').selectpicker('refresh');
+      $('#date_selecter').selectpicker('refresh');
+      $('#page_selecter').selectpicker('refresh');
+    }
+    document.getElementById('query_button').onclick = function(){
+      //$('#country_selecter').val() == '' ? 1 : $('#country_selecter').val();
+      var href_str = '/pyanalysis?doquery=hai';
+      var type = $('#type_selecter').val() == '' ? '' : $('#type_selecter').val();
+      var geo = $('#country_selecter').val() == '' ? '' : $('#country_selecter').val();
+      var event_time = $('#date_selecter').val() == '' ? '' : $('#date_selecter').val();
+      var page = $('#page_selecter').val() == '' ? '' : $('#page_selecter').val();
+      var offset = '10'
+      href_str += '&type=' + type + '&geo=' + geo + '&event_time=' + event_time + '&event_time='
+      + '&page=' + page + '&offset=' + offset
+      window.location.href = href_str;
+    //   $.ajax({
+    //   url : "/pyanalysis/pyquery",
+    //   method : 'post',
+    //   data : {
+    //     'typical' : 'ads_list',
+    //     'type' : $('#type_selecter').val() == '' ? '' : $('#type_selecter').val(),
+    //     'country' : $('#country_selecter').val() == '' ? '' : $('#country_selecter').val(),
+    //     'date' : $('#date_selecter').val() == '' ? '' : $('#date_selecter').val(),
+    //     'page' : $('#page_selecter').val() == '' ? '' : $('#page_selecter').val(),
+    //     'offset' : '10'
+    //   },
+    //   dataType : 'json',
+    //   success : function(data){
+    //     exprot_data_to_ad_list(data);
+    //   },
+    //   error : function(err){
+    //     alert(err);
+    //   }
+    // });
+    }
+
+    function export_data_to_table(data){
+      var ads = eval(data);
+      $('#ads_table').html('');
+      for(var index in ads){
+        $('#ads_table').html($('#ads_table').html() + '<div style = "border: 2px solid; width:30%"><img style = "width:50px" src = "' + ads[index][1] + '"/><span>Title: ' + ads[index][3] + '</span><span>&nbsp;Country: ' + ads[index][10] + '</span><br/><img style = "width:200px" src = "' + ads[index][2] + '"/></div>');
+      }
+    }
+
+    function refresh(){
+      $.ajax({
+      url : "/pyanalysis/pyquery",
+      method : 'post',
+      data : {
+        'typical' : 'query_page_via_type_country_date',
+        'type' : $('#type_selecter').val() == '' ? '' : $('#type_selecter').val(),
+        'country' : $('#country_selecter').val() == '' ? '' : $('#country_selecter').val(),
+        'date' : $('#date_selecter').val() == '' ? '' : $('#date_selecter').val(),
+        'offset' : 10
+      },
+      dataType : 'json',
+      success : function(data){
+        var count = eval(data)[0][0];
+        $('#ads_now_num').html(count);
+        var page_results_str = '';
+        for(var i = Math.ceil(count / 10); i > 0; i --){
+          page_results_str += '<option data-subtext = "' + 'page' + '">' + i + '</option>';
+        }
+        $('#page_selecter').html(page_results_str);
+        $('#page_selecter').selectpicker('refresh');
+      },
+      error : function(err){
+        alert(err);
+      }
+    });
+    }
+
+    function show_analysis(){
+      // #float_table
+      $.ajax({
+        url : "/pyanalysis/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'query_top10',
+        },
+        dataType : 'json',
+        success : function(data){
+          export_data_to_analysis_table(data);
+        },
+        error : function(err){
+          alert(err);
+        }
+      });
+
+    }
+    function export_data_to_analysis_table(data){
+      var table = $('#float_table_table')
+      table.html('<tr><td>times</td><td>title</td><td>country</td><td>icon</td><td>image</td></tr>');
+      var results = eval(data);
+      for(var index in results){
+        table.html(table.html() + '<tr onclick = "get_ad_analysis_via_date(\'' + results[index][3] + '\')"><td>' + results[index][0] + '</td><td>' + results[index][4] + '</td><td>' + results[index][11] + '</td><td><img style = "width:50px" alt = "loading" src = "' + results[index][2] + '"/></td><td><img style = "width:150px" alt = "loading" src = "' + results[index][3] + '"/></td></tr>')
+      }
+    }
+    function get_ad_analysis_via_date(data){
+      $.ajax({
+        url : "/pyanalysis/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'query_ad_analysis_via_date',
+          'date' : data
+        },
+        dataType : 'json',
+        success : function(data){
+          export_date_data_to_table(data);
+        },
+        error : function(err){
+          alert(err);
+        }
+      });
+    }
+    function export_date_data_to_table(data){
+      // #ads_detail_table
+      var table = $('#ads_detail_table');
+      var results = eval(data);
+      table.html('<tr><td>Date</td><td>times</td></tr>');
+      for(var index in results){
+        table.html(table.html() + '<tr><td>' + results[index][1] + '</td><td>' + results[index][0] + '</td></tr>')
+      }
+    }
+
+    function exprot_data_to_ad_list(data){
+      var ads = eval(data);
+      $('#ads_table').html('');
+      var page_row = ''
+      for(var index in ads){
+        var single_row = '<div class = "ads_row">' + 
+        '<img class = "icon_image" src = "' + ads[index][1] + '"/>' + 
+        '<table class = "ads_content">' +
+        '<tr><td><b>Title:</b> ' + ads[index][3].substring(0, 40) + '</td>' + 
+        '<td><b>SubTitle:</b> ' + ads[index][4] + '</td></tr>' +
+        '<tr><td>' + ads[index][7].substring(0, 30) + 
+        '<td>' + ads[index][5].substring(0, 40) + '</td>' +
+        '<tr>' +
+        '<tr><td><b>Pkg:</b> ' + ads[index][8] + '</td>' + 
+        '<td><b>Date:</b> ' + ads[index][11] + '</td>' +
+        '</tr>' +
+        '<tr><td><b>Country:</b> ' + ads[index][10] + '</td>' +
+        '<td><b>Type:</b> ' + ads[index][9] + '</td></tr>' +
+        '<tr>' +
+        '<td><table>' +
+        '<tr>' +
+        '<td>展示次数:  ' + ads[index][14] + '</td>' + 
+        '<td>展示天数: ' + ads[index][12] + '</td>' +
+        '<td>展示国家数: ' + ads[index][13] + '</td>' +
+        '</tr>' +
+        '</table>' + 
+        '</tr>' +
+        '</table></td>' +
+        '<a href = "/pyanalysis/ad_detail?image=' + ads[index][2] +'">' +
+        '<img class = "ad_image" src = "' + ads[index][2] + '"/>' +
+        '</a>' + 
+        '</div>'
+        page_row += single_row;
+      }
+      $('#ads_table').html(page_row);
+    }
+
+    window.onload = function (){
+      get_count();
+      data = {{ data|tojson }}
+      if(data != null && data != '' && data != '1'){
+        exprot_data_to_ad_list(data)
+      }
+    }
+  </script>
+  <style type="text/css">
+    #select_area {
+      margin-top: 64px;
+      padding: 10px
+    }
+    #nav {
+      visibility: ;
+    }
+    #query_button{
+      margin: 5px
+    }
+    #float_table{
+      width: 50%;
+      float: right;
+      margin-right: 30px;
+    }
+    #float_table_table{
+      border: 1px solid;
+      text-align: center;
+    }
+    #float_table_table td{
+      border: 1px solid;
+      padding: 10px
+    }
+    #ads_detail{
+      width:  60%;
+      float: right;
+      margin-right: 30px;
+    }
+    #ads_detail_table {
+      border: 1px solid;
+      text-align: center;
+    }
+    #ads_detail_table tr{
+      display: block; 
+      float: left;
+      padding: 1px;
+    }
+    #ads_detail_table th, #ads_detail_table td {
+      display: block; 
+      border: 1px solid;
+      padding: 1px
+    }
+    .ads_row{
+      background: ;
+      text-align: center;
+      border: 10px groove #CCCCFF;
+      display: inline-block;
+      width: 100%;
+    }
+    .ads_content{
+      float: left;
+      font-size: 15px;
+      margin: 5px;
+    }
+    .ads_content tr{
+      border-bottom: 1px groove;
+    }
+    .ads_content td{
+      padding: 4px;
+    }
+
+    .ads_content table td{
+    }
+
+    .icon_image{
+      float: left;
+      width: 150px;
+      height: 150px;
+    }
+    .ad_image{
+      float: right;
+      width: 300px;
+      height: 150px;
+    }
+  </style>
+</html>
