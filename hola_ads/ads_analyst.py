@@ -2,7 +2,7 @@
 from flask import Flask, url_for, render_template, g, request, json
 import sqlite3
 import ads_analysis, common_db, common, utils
-DATABASE_ADS = 'static/db/fbad.db'
+DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
 #_db_tool  common db tool
 #
@@ -62,20 +62,20 @@ class ads_analyst:
 		if typical == 'ads_list':
 			sql = """
 			SELECT a.*, c.cd, c.cg, c.cc FROM ads a, 
-			(SELECT image, count( DISTINCT substr(event_time, 0, 12)) AS cd, 
-			count(DISTINCT geo) AS cg, count() AS cc 
-			FROM ads GROUP BY image || type) c 
+			(SELECT image, count( DISTINCT substr(event_time, 1, 11)) AS cd, 
+			count(DISTINCT geo) AS cg, count(*) AS cc 
+			FROM ads GROUP BY image, adtype) c 
 			WHERE a.image = c.image 
 			"""
 			if package_name != '':
 				sql += ' AND a.package_name = "%s" ' % package_name
 			if event_time != '':
-				sql += ' AND substr(a.event_time, 0, 12) =  "%s" ' % event_time
+				sql += ' AND substr(a.event_time, 1, 11) =  "%s" ' % event_time
 			if geo != '':
 				sql += ' AND a.geo = "%s" ' % geo
 			if type1 != '':
-				sql += ' AND a.type = "%s" ' % type1
-			sql += ' GROUP BY a.image || a.type ORDER BY c.cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
+				sql += ' AND a.adtype = "%s" ' % type1
+			sql += ' GROUP BY a.image, a.adtype ORDER BY c.cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
 			return  json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 			pass
@@ -100,14 +100,28 @@ class ads_analyst:
 			#select type, count(type) as c from ads GROUP BY type order by c desc;
 			#select geo, count(geo) as c from ads GROUP BY geo order by c DESC;
 			#select substr(event_time, 0, 12), count(substr(event_time, 0, 12)) as c from ads group by substr(event_time, 0, 12) order by c desc;
-			type_result = json.dumps(db_tool.query_by_sql('select type, count(type) as c from ads GROUP BY type order by c desc'), ensure_ascii = False)
+			type_result = json.dumps(db_tool.query_by_sql('select adtype, count(adtype) as c from ads GROUP BY adtype order by c desc'), ensure_ascii = False)
 			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo, count(geo) as c from ads GROUP BY geo order by c DESC'), ensure_ascii = False)
-			date_result = json.dumps(db_tool.query_by_sql('select substr(event_time, 0, 12) as d, count(substr(event_time, 0, 12)) as c from ads group by substr(event_time, 0, 12) order by d desc'), ensure_ascii = False)
+			date_result = json.dumps(db_tool.query_by_sql('select substr(event_time, 1, 11) as d, count(substr(event_time, 1, 11)) as c from ads group by substr(event_time, 1, 11) order by d desc'), ensure_ascii = False)
 			count = count = db_tool.query_by_sql('select count(*) from ads')
 			result_list = [type_result, geo_reuslt, date_result, count]
 			return json.dumps(result_list, ensure_ascii = False)
 		if typical == 'query_page_via_type_country_date':
-			sql = 'select count(distinct image), image from ads where type = "%s" and geo = "%s" and event_time like "%s"' % ((request.form['type'] if request.form['type'] != '' else 'type'), (request.form['country'] if request.form['country'] != '' else 'geo'), (request.form['date'] + '%' if request.form['date'] != '' else '%'))
+			sql = """
+			select count(distinct image) from ads where 1=1
+			"""
+			package_name = request.form['package_name']
+			if package_name != '':
+				sql += ' AND package_name = "%s"' % package_name
+			adtype = request.form['type']
+			if adtype != '':
+				sql += ' AND adtype = "%s"' % adtype
+			geo = request.form['country']
+			if geo != '':
+				sql += ' AND geo = "%s"' % geo
+			date = request.form['date']
+			if date != '':
+				sql += ' AND event_time like "%s"' % date
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		

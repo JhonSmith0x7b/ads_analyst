@@ -18,6 +18,38 @@
     <div id = 'detail_area'>
       
     </div>
+
+    <div id="novelPage" style="position: fixed; bottom: 1%; z-index: 9998; right: 20%; display: ;">
+      <ul class="pagination">
+        <li><a href="javascript:prev();">&lt;&lt;</a></li>
+        <li><a id="currentIndex">1</a></li>
+        <li><a href="javascript:next();">&gt;&gt;</a></li>
+        <li>&nbsp;</li>
+        <li class="dropup">
+          <div class="btn-group bootstrap-select" style="width: 80px;">
+            <button type="button" class="btn dropdown-toggle btn-info" data-toggle="dropdown" title="跳页" aria-expanded="false">
+            <span class="filter-option pull-left">跳页</span>&nbsp;<span class="caret"></span>
+            </button>
+            <div class="dropdown-menu open">
+              <ul class="dropdown-menu inner" role="menu">
+                <li data-original-index="1">
+                  <a tabindex="0" class="" style="" data-tokens="null">
+                    <span class="text">2</span><span class="glyphicon glyphicon-ok check-mark"></span>
+                  </a>
+                </li>
+                <li data-original-index="2">
+                  <a tabindex="0" class="" style="" data-tokens="null">
+                    <span class="text">1</span>
+                    <span class="glyphicon glyphicon-ok check-mark"></span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
   </body>
   <script type="text/javascript">
     var data = eval({{ data|tojson }});

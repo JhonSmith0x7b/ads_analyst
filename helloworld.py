@@ -11,7 +11,7 @@ app.debug = True
 
 #ERROR DIC
 
-@app.route('/pyanalysis', methods = ['get'])
+@app.route('/pyanalyst', methods = ['get'])
 def ads_analysis():
 	doquery = request.args.get('doquery', '')
 	if doquery != '':
@@ -20,24 +20,29 @@ def ads_analysis():
 			type1 = request.args.get('type', ''), geo = request.args.get('geo', ''), 
 			event_time = request.args.get('event_time', ''), page = request.args.get('page', ''), 
 			offset = request.args.get('offset', ''), image = request.args.get('image', ''))
-		return render_template('hola_ads/ads_analysis.htm', data = query_data.encode('utf-8')), 200 , {'Content-Type':'text/html;charset=utf-8'}
-	return render_template('hola_ads/ads_analysis.htm', data = 1)
+		return render_template('hola_ads/ads_analyst.htm', data = query_data.encode('utf-8'),
+			type = request.args.get('type', ''), geo = request.args.get('geo', ''), 
+			event_time = request.args.get('event_time', ''), page = request.args.get('page', ''), package_name = request.args.get('package_name', '')), 
+		200 , {'Content-Type':'text/html;charset=utf-8'}
+	return render_template('hola_ads/ads_analyst.htm', data = 1, type = 'type', geo = 'geo', 
+		event_time = 'event_time', page = 'page', package_name = 'package_name')
 	pass
 
-@app.route('/pyanalysis/pyquery', methods = ['post'])
+@app.route('/pyanalyst/pyquery', methods = ['post'])
 def query_route():
 	ads = get_ads()
 	json_data = ads.query_via_parameter(typical = request.form.get('typical', ''), type1 = request.form.get('type', ''), geo = request.form.get('country', ''),
 		event_time = request.form.get('date', ''), page = request.form.get('page', ''), offset = request.form.get('offset', ''))
 	return json_data, 200, {'Content-Type':'text/json;charset=utf-8'}
 
-@app.route('/pyanalysis/ad_detail')
+@app.route('/pyanalyst/ad_detail')
 def ad_detail():
 	image = request.args.get('image', '')
 	if image != '':
 		ads = get_ads()
 		query_data = ads.query_via_parameter(typical = 'groupby_date_count', image = image)
-		return render_template('hola_ads/ad_detail.htm', data = query_data.encode('utf-8')), 200, {'Content-Type':'text/html;charset=utf-8'}
+		return render_template('hola_ads/ad_detail.htm', data = query_data.encode('utf-8')), 
+		200, {'Content-Type':'text/html;charset=utf-8'}
 	return render_template('hola_ads/ad_detail.htm', data = '')
 
 def get_ads():
