@@ -3,6 +3,7 @@ from flask import Flask, url_for, render_template, g, request, json
 import sqlite3
 import sys;reload(sys);sys.setdefaultencoding('utf-8')
 from  hola_ads import ads_analyst, common_db, common, utils
+import time
 app = Flask(__name__)
 app.debug = True
 #g attr list
@@ -16,15 +17,18 @@ def ads_analysis():
 	doquery = request.args.get('doquery', '')
 	if doquery != '':
 		ads = get_ads()
+		pre_time = time.time()
 		query_data = ads.query_via_parameter(typical = 'ads_list', package_name = request.args.get('package_name', ''), 
 			adtype = request.args.get('adtype', ''), geo = request.args.get('geo', ''), 
 			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
 			page = request.args.get('page', ''), 
 			offset = request.args.get('offset', ''), image = request.args.get('image', ''))
+		query_time = time.time() - pre_time
 		return render_template('hola_ads/ads_analyst.htm', data = query_data.encode('utf-8'),
 			adtype = request.args.get('adtype', ''), geo = request.args.get('geo', ''), 
 			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
-			page = request.args.get('page', ''), package_name = request.args.get('package_name', '')), 
+			page = request.args.get('page', ''), package_name = request.args.get('package_name', ''),
+			query_time = query_time), 
 		200 , {'Content-Type':'text/html;charset=utf-8'}
 	return render_template('hola_ads/ads_analyst.htm', data = 1, adtype = '', geo = '', 
 		dt_start = '', dt_end = '', page = '', package_name = '')

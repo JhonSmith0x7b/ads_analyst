@@ -104,7 +104,6 @@
       $('#geo_selector').selectpicker('refresh');
     }
     document.getElementById('query_button').onclick = function(){
-      //$('#country_selecter').val() == '' ? 1 : $('#country_selecter').val();
       var href_str = '/pyanalyst?doquery=hai';
       var adtype = $('#adtype_input').val()
       var geo = $('#geo_input').val()
@@ -138,10 +137,10 @@
         var single_row = '<div class = "ads_row">' + 
         '<img class = "icon_image" src = "' + ads[index][5] + '"/>' + 
         '<table class = "ads_content">' +
-        '<tr><td><b>Title:</b> ' + decodeURI(ads[index][8]).substring(0, 40) + '</td>' + 
-        '<td><b>SubTitle:</b> ' + decodeURI(ads[index][7]) + '</td></tr>' +
-        '<tr><td>' + decodeURI(ads[index][11]).substring(0, 30) + 
-        '<td>' + decodeURI(ads[index][9]).substring(0, 40) + '</td>' +
+        '<tr><td><b>Title:</b> ' + decodeURIComponent(ads[index][8]).replace(/\+/g, ' ').substring(0, 40) + '</td>' + 
+        '<td><b>SubTitle:</b> ' + decodeURIComponent(ads[index][7]).replace(/\+/g, ' ') + '</td></tr>' +
+        '<tr><td>' + decodeURIComponent(ads[index][11]).replace(/\+/g, ' ').substring(0, 30) + 
+        '<td>' + decodeURIComponent(ads[index][9]).replace(/\+/g, ' ').substring(0, 40) + '</td>' +
         '<tr>' +
         '<tr><td class = "package_info" onclick = "query_via_package(\'' + ads[index][14] + '\')"><b>Pkg:</b> ' + ads[index][14] + '</td>' + 
         '<td><b>Date:</b> ' + ads[index][15] + '</td>' +
@@ -301,6 +300,7 @@
     }
 
     window.onload = function (){
+      console.log('query time: ' + {{query_time}})
       init_datepicker()
       page_plugin_init()
       get_count();
