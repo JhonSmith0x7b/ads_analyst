@@ -17,22 +17,27 @@ def ads_analysis():
 	if doquery != '':
 		ads = get_ads()
 		query_data = ads.query_via_parameter(typical = 'ads_list', package_name = request.args.get('package_name', ''), 
-			type1 = request.args.get('type', ''), geo = request.args.get('geo', ''), 
-			event_time = request.args.get('event_time', ''), page = request.args.get('page', ''), 
+			adtype = request.args.get('adtype', ''), geo = request.args.get('geo', ''), 
+			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
+			page = request.args.get('page', ''), 
 			offset = request.args.get('offset', ''), image = request.args.get('image', ''))
 		return render_template('hola_ads/ads_analyst.htm', data = query_data.encode('utf-8'),
-			type = request.args.get('type', ''), geo = request.args.get('geo', ''), 
-			event_time = request.args.get('event_time', ''), page = request.args.get('page', ''), package_name = request.args.get('package_name', '')), 
+			adtype = request.args.get('adtype', ''), geo = request.args.get('geo', ''), 
+			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
+			page = request.args.get('page', ''), package_name = request.args.get('package_name', '')), 
 		200 , {'Content-Type':'text/html;charset=utf-8'}
-	return render_template('hola_ads/ads_analyst.htm', data = 1, type = 'type', geo = 'geo', 
-		event_time = 'event_time', page = 'page', package_name = 'package_name')
+	return render_template('hola_ads/ads_analyst.htm', data = 1, adtype = '', geo = '', 
+		dt_start = '', dt_end = '', page = '', package_name = '')
 	pass
 
 @app.route('/pyanalyst/pyquery', methods = ['post'])
 def query_route():
 	ads = get_ads()
-	json_data = ads.query_via_parameter(typical = request.form.get('typical', ''), type1 = request.form.get('type', ''), geo = request.form.get('country', ''),
-		event_time = request.form.get('date', ''), page = request.form.get('page', ''), offset = request.form.get('offset', ''))
+	json_data = ads.query_via_parameter(typical = request.form.get('typical', ''), 
+		adtype = request.form.get('adtype', ''), geo = request.form.get('geo', ''),
+		dt_start = request.form.get('dt_start', ''), dt_end = request.form.get('dt_end', ''), 
+		package_name = request.form.get('package_name', ''),
+		page = request.form.get('page', ''), offset = request.form.get('offset', ''))
 	return json_data, 200, {'Content-Type':'text/json;charset=utf-8'}
 
 @app.route('/pyanalyst/ad_detail')

@@ -40,6 +40,5 @@ class Common_db:
 	def query_by_sql(self, sql):
 		cur = self.db.cursor()
 		cur.execute(sql)
-		print cur
 		return cur.fetchall()
 		pass

@@ -7,40 +7,40 @@
     <link href = "/static/css/me.css?detail=12" rel = 'stylesheet'/>
     <link href = "/static/css/bootstrap.css?detail=2" rel = 'stylesheet'/>
     <link rel="stylesheet" href="/static/css/bootstrap-select.css?q=1280549780">
+    <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.css?q=1280549780">
     <script type = "text/javascript" src = "/static/js/jquery-3.1.0.js?q=1280549780"></script>
     <script type = "text/javascript" src = "/static/js/bootstrap.js?q=1280549780"></script>
+    <script type = "text/javascript" src = "/static/js/bootstrap-datepicker.js?q=1280549780"></script>
     <script src="/static/js/bootstrap-select.js"></script>
   </head>
   <body>
     {% include 'hola_ads/head.htm' %}
     <div id = 'select_area'>
-      Type: <select class="selectpicker"  id = 'type_selecter' data-size="5" title = " {{type}}" onchange = 'refresh()'>
-<!--         <option data-subtext="Heinz">Ketchup</option> -->
+      Type: <select class="selectpicker"  id = 'adtype_selector' data-size="5" title = "{{adtype}}" onchange = 'refresh()'>
       </select>
-      Country: <select class="selectpicker" id = 'country_selecter' data-live-search="true" data-size="10" title = " {{geo}}" onchange = 'refresh()'>
-
+      Country: <select class="selectpicker" id = 'geo_selector' data-live-search="true" data-size="10" title = " {{geo}}" onchange = 'refresh()'>
       </select>
-      Date: <select class="selectpicker" id = 'date_selecter' data-live-search="true" data-size="10" title = " {{event_time}}" onchange = 'refresh()'>
-
-      </select>
-<!--       <select class="selectpicker" id = 'page_selecter' data-live-search="true" data-size="10" title = " {{page}}">
-
-      </select> -->
-      Package: <input id = 'package_selecter' value = '{{package_name}}'/>
-      <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal" data-target="#myModal">
+      Date: 
+        <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}">
+        TO
+        <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}">
+      Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+      <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal">
         Query
       </button>
+      <button type="button" id = 'clear_button' class="btn btn-danger btn-g" data-toggle="modal">
+        Clear
+      </button>
     </div>
+
     <div id = 'select_input'>
-      type: <input type="text" name="" id = 'type_input' value = '{{type}}'/>
-      geo: <input type="text" name="" id = 'geo_input' value = '{{geo}}'/>
-      <br/>
-      package: <input type="text" name="" id = 'package_input' value = '{{package_name}}'/>
-      event_time: <input type="text" name="" id = 'event_time_input' value = '{{event_time}}'/>
+      <input type="text" name="" id = 'adtype_input' value = '{{adtype}}'/>
+      <input type="text" name="" id = 'geo_input' value = '{{geo}}'/>
+      <input type="text" name="" id = 'package_name_input' value = '{{package_name}}'/>
+      <input type="text" name="" id = 'dt_start_input' value = '{{dt_start}}'/>
+      <input type="text" name="" id = 'dt_end_input' value = '{{dt_end}}'/>
     </div>
-<!--     <div>
-      <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Count: <span id = 'ads_now_num'></span></h1>
-    </div> -->
+
     <div id = 'ads_detail'>
       <table id = 'ads_detail_table'>
         
@@ -87,149 +87,46 @@
     }
     function export_count_to_dropdown(data){
       var results = eval(data);
-      var type_results = eval(results[0]);
+      var adtype_results = eval(results[0]);
       var geo_results = eval(results[1]);
       var date_results = eval(results[2]);
-      var count = eval(results[3])[0][0];
-      $('#ads_now_num').html(count);
-      $('#country_selecter').html('');
-      $('#date_selecter').html('');
-      //$('#page_selecter').html('');
-      var type_results_str = '';
-      for(var index in type_results){
-        type_results_str += '<option data-subtext = "' + type_results[index][1] + '">' + type_results[index][0] + '</option>';
+      var adtype_results_str = '<option data-subtext = ""></option>'
+      for(var index in adtype_results){
+        adtype_results_str += '<option data-subtext = "' + adtype_results[index][1] + '">' + adtype_results[index][0] + '</option>';
       }
-      $('#type_selecter').html(type_results_str);
-      var geo_results_str = '';
+      $('#adtype_selector').html(adtype_results_str);
+      var geo_results_str = '<option data-subtext = ""></option>';
       for(var index in geo_results){
-        geo_results
         geo_results_str += '<option data-subtext = "' + geo_results[index][1] + '">' + geo_results[index][0] + '</option>';
       }
-      $('#country_selecter').html(geo_results_str);
-      var date_results_str = '';
-      for(var index in date_results){
-        date_results_str += '<option data-subtext = "' + date_results[index][1] + '">' + date_results[index][0] + '</option>';
-      }
-      $('#date_selecter').html(date_results_str);
-      // var page_results_str = '';
-      // for(var i = Math.ceil(count / 10); i > 0; i --){
-      //   page_results_str += '<option data-subtext = "' + 'page' + '">' + i + '</option>';
-      // }
-      //$('#page_selecter').html(page_results_str);
-      $('#type_selecter').selectpicker('refresh');
-      $('#country_selecter').selectpicker('refresh');
-      $('#date_selecter').selectpicker('refresh');
-      //$('#page_selecter').selectpicker('refresh');
+      $('#geo_selector').html(geo_results_str);
+      $('#adtype_selector').selectpicker('refresh');
+      $('#geo_selector').selectpicker('refresh');
     }
     document.getElementById('query_button').onclick = function(){
       //$('#country_selecter').val() == '' ? 1 : $('#country_selecter').val();
       var href_str = '/pyanalyst?doquery=hai';
-      var type = $('#type_').val() == '' ? '' : $('#type_selecter').val();
-      var geo = $('#country_selecter').val() == '' ? '' : $('#country_selecter').val();
-      var event_time = $('#date_selecter').val() == '' ? '' : $('#date_selecter').val();
+      var adtype = $('#adtype_input').val()
+      var geo = $('#geo_input').val()
+      var dt_start = $('#dt_start_input').val()
+      var dt_end = $('#dt_end_input').val()
+      var package_name = $('#package_name_input').val()
       var page = ''
       var offset = '10'
-      href_str += '&type=' + type + '&geo=' + geo + '&event_time=' + event_time + '&event_time='
-      + '&page=' + page + '&offset=' + offset
+      href_str += '&adtype=' + adtype + '&package_name=' + package_name + '&geo=' + geo + '&dt_start=' + dt_start
+      + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset
       window.location.href = href_str;
     }
 
-    function export_data_to_table(data){
-      var ads = eval(data);
-      $('#ads_table').html('');
-      for(var index in ads){
-        $('#ads_table').html($('#ads_table').html() + '<div style = "border: 2px solid; width:30%"><img style = "width:50px" src = "' + ads[index][1] + '"/><span>Title: ' + ads[index][3] + '</span><span>&nbsp;Country: ' + ads[index][10] + '</span><br/><img style = "width:200px" src = "' + ads[index][2] + '"/></div>');
-      }
-    }
-
     function refresh(){
-      $.ajax({
-      url : "/pyanalyst/pyquery",
-      method : 'post',
-      data : {
-        'typical' : 'query_page_via_type_country_date',
-        'type' : $('#type_input').val() == '' ? '' : $('#type_selecter').val(),
-        'country' : $('#geo_input').val() == '' ? '' : $('#geo_input').val(),
-        'date' : $('#event_time_input').val() == '' ? '' : $('#event_time_input').val(),
-        'package_name' : $('#package_input').val() == '' ? '' : $('#package_input').val(),
-        'offset' : 10
-      },
-      dataType : 'json',
-      success : function(data){
-        var count = eval(data)[0][0];
-        $('#ads_now_num').html(count);
-        var page_results_str = '';
-        for(var i = Math.ceil(count / 10); i > 0; i --){
-          page_results_str += '<option data-subtext = "' + 'page' + '">' + i + '</option>';
-        }
-        $('#page_selecter').html(page_results_str);
-        $('#page_selecter').selectpicker('refresh');
-        //refresh plugin
-        var selector = $('#ads_page_selector')
-        var options_str = ''
-        for(var i = Math.ceil(count / 10); i > 0; i --){
-          options_str +=
-          '<option>' + i + '</option>'
-        }
-        selector.html(options_str)
-        selector.selectpicker('refresh')
-      },
-      error : function(err){
-        alert(err);
+      if($('#adtype_selector').val() != ''){
+        $('#adtype_input').val($('#adtype_selector').val())
       }
-    });
-    }
-
-    function show_analysis(){
-      // #float_table
-      $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
-          'typical' : 'query_top10',
-        },
-        dataType : 'json',
-        success : function(data){
-          export_data_to_analysis_table(data);
-        },
-        error : function(err){
-          alert(err);
-        }
-      });
-
-    }
-    function export_data_to_analysis_table(data){
-      var table = $('#float_table_table')
-      table.html('<tr><td>times</td><td>title</td><td>country</td><td>icon</td><td>image</td></tr>');
-      var results = eval(data);
-      for(var index in results){
-        table.html(table.html() + '<tr onclick = "get_ad_analysis_via_date(\'' + results[index][3] + '\')"><td>' + results[index][0] + '</td><td>' + results[index][4] + '</td><td>' + results[index][11] + '</td><td><img style = "width:50px" alt = "loading" src = "' + results[index][2] + '"/></td><td><img style = "width:150px" alt = "loading" src = "' + results[index][3] + '"/></td></tr>')
+      if($('#geo_selector').val() != ''){
+        $('#geo_input').val($('#geo_selector').val())
       }
-    }
-    function get_ad_analysis_via_date(data){
-      $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
-          'typical' : 'query_ad_analysis_via_date',
-          'date' : data
-        },
-        dataType : 'json',
-        success : function(data){
-          export_date_data_to_table(data);
-        },
-        error : function(err){
-          alert(err);
-        }
-      });
-    }
-    function export_date_data_to_table(data){
-      // #ads_detail_table
-      var table = $('#ads_detail_table');
-      var results = eval(data);
-      table.html('<tr><td>Date</td><td>times</td></tr>');
-      for(var index in results){
-        table.html(table.html() + '<tr><td>' + results[index][1] + '</td><td>' + results[index][0] + '</td></tr>')
+      if($('#package_name_selector').val() != ''){
+        $('#package_name_input').val($('#package_name_selector').val())
       }
     }
 
@@ -241,12 +138,12 @@
         var single_row = '<div class = "ads_row">' + 
         '<img class = "icon_image" src = "' + ads[index][5] + '"/>' + 
         '<table class = "ads_content">' +
-        '<tr><td><b>Title:</b> ' + ads[index][8].substring(0, 40) + '</td>' + 
-        '<td><b>SubTitle:</b> ' + ads[index][7] + '</td></tr>' +
-        '<tr><td>' + ads[index][11].substring(0, 30) + 
-        '<td>' + ads[index][9].substring(0, 40) + '</td>' +
+        '<tr><td><b>Title:</b> ' + decodeURI(ads[index][8]).substring(0, 40) + '</td>' + 
+        '<td><b>SubTitle:</b> ' + decodeURI(ads[index][7]) + '</td></tr>' +
+        '<tr><td>' + decodeURI(ads[index][11]).substring(0, 30) + 
+        '<td>' + decodeURI(ads[index][9]).substring(0, 40) + '</td>' +
         '<tr>' +
-        '<tr><td style = "cursor:pointer;"onclick = "query_via_package(\'' + ads[index][14] + '\')"><b>Pkg:</b> ' + ads[index][14] + '</td>' + 
+        '<tr><td class = "package_info" onclick = "query_via_package(\'' + ads[index][14] + '\')"><b>Pkg:</b> ' + ads[index][14] + '</td>' + 
         '<td><b>Date:</b> ' + ads[index][15] + '</td>' +
         '</tr>' +
         '<tr><td><b>Country:</b> ' + ads[index][16] + '</td>' +
@@ -271,6 +168,35 @@
     }
 
     function page_plugin_init(data){
+      $.ajax({
+        url : "/pyanalyst/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'query_page_via_type_geo_date',
+          'adtype' : $('#adtype_input').val(),
+          'geo' : $('#geo_input').val(),
+          'dt_start' : $('#dt_start_input').val(),
+          'dt_end' : $('#dt_end_input').val(),
+          'package_name' : $('#package_name_input').val(),
+          'offset' : 10
+        },
+        dataType : 'json',
+        success : function(data){
+          var count = eval(data)[0][0];
+          //refresh plugin
+          var selector = $('#ads_page_selector')
+          var options_str = ''
+          for(var i = Math.ceil(count / 10); i > 0; i --){
+            options_str +=
+            '<option>' + i + '</option>'
+          }
+          selector.html(options_str)
+          selector.selectpicker('refresh')
+        },
+        error : function(err){
+          alert(err);
+        }
+      });
       var page = '{{page}}'
       try{
         page = parseInt(page)
@@ -315,14 +241,15 @@
 
     function changepage(page){
       var href_str = '/pyanalyst?doquery=hai';
-      var type = $('#type_input').val() == '' ? '' : $('#type_input').val();
-      var geo = $('#geo_input').val() == '' ? '' : $('#geo_input').val();
-      var event_time = $('#event_time_input').val() == '' ? '' : $('#event_time_input').val();
-      var package = $('#package_input').val() == '' ? '' : $('#event_time_input').val();
+      var adtype = $('#adtype_input').val()
+      var geo = $('#geo_input').val()
+      var dt_start = $('#dt_start_input').val()
+      var dt_end = $('#dt_end_input').val()
+      var package_name = $('#package_name_input').val()
       var page = page + ''
       var offset = '10'
-      href_str += '&type=' + type + '&geo=' + geo + '&event_time=' + event_time + '&event_time='
-      + '&page=' + page + '&offset=' + offset
+      href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
+      + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset
       window.location.href = href_str
     }
 
@@ -332,9 +259,50 @@
       window.location.href = href_str
     }
 
+    function init_datepicker(){
+      $('#start_datepicker').datepicker({
+        format: 'yyyymmdd',
+        clearBtn: true,
+        todayHighlight: true,
+        endDate: '0d',
+      })
+      $('#start_datepicker').datepicker().on('changeDate', function(e){
+        $('#start_datepicker').datepicker('hide')
+        $('#dt_start_input').val($('#start_datepicker').val())
+      })
+      $('#end_datepicker').datepicker({
+        format: 'yyyymmdd',
+        clearBtn: true,
+        todayHighlight: true,
+        endDate: '0d',
+      })
+      $('#end_datepicker').datepicker().on('changeDate', function(e){
+        $('#end_datepicker').datepicker('hide')
+        $('#dt_end_input').val($('#end_datepicker').val())
+      })
+    }
+    document.getElementById('clear_button').onclick = function(){
+      clear()
+    }
+
+    function clear(){
+      $('#adtype_selector').selectpicker('val', '')
+      $('#geo_selector').selectpicker('val', '')
+      $('#adtype_selector').selectpicker('refresh');
+      $('#geo_selector').selectpicker('refresh');
+      $('#package_name_selector').val('')
+      $('#start_datepicker').val('')
+      $('#end_datepicker').val('')
+      $('#adtype_input').val('')
+      $('#geo_input').val('')
+      $('#package_name_input').val('')
+      $('#dt_start_input').val('')
+      $('#dt_end_input').val('')
+    }
+
     window.onload = function (){
+      init_datepicker()
       page_plugin_init()
-      refresh()
       get_count();
       data = {{ data|tojson }}
       if(data != null && data != '' && data != '1'){
@@ -423,6 +391,11 @@
       width: 300px;
       height: 150px;
     }
+    .package_info{
+      cursor: pointer;
+      color: blue;
+    }
+
     #ads_page{
       position: fixed; 
       bottom: 1%; 
@@ -432,6 +405,9 @@
     }
     #ads_page select{
 
+    }
+    .me_date_picker{
+      width: 96px;
     }
 
   </style>
