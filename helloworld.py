@@ -14,6 +14,8 @@ app.debug = True
 
 @app.route('/pyanalyst', methods = ['get'])
 def ads_analysis():
+	if not check_ip():
+		return 'IP Forbidd'
 	doquery = request.args.get('doquery', '')
 	if doquery != '':
 		ads = get_ads()
@@ -36,6 +38,8 @@ def ads_analysis():
 
 @app.route('/pyanalyst/pyquery', methods = ['post'])
 def query_route():
+	if not check_ip():
+		return 'IP Forbidd'
 	ads = get_ads()
 	json_data = ads.query_via_parameter(typical = request.form.get('typical', ''), 
 		adtype = request.form.get('adtype', ''), geo = request.form.get('geo', ''),
@@ -46,6 +50,8 @@ def query_route():
 
 @app.route('/pyanalyst/ad_detail')
 def ad_detail():
+	if not check_ip():
+		return 'IP Forbidd'
 	image = request.args.get('image', '')
 	if image != '':
 		ads = get_ads()
@@ -60,6 +66,11 @@ def get_ads():
 		ads = ads_analyst.ads_analyst()
 		g.ads = ads
 	return ads
+
+def check_ip():
+	remote_ip = request.remote_addr
+	if remote_ip in utils.ALLOW_IP_LIST:
+		return True
 
 if __name__ == '__main__':
 	app.run(host = '0.0.0.0')
