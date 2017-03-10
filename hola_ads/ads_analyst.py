@@ -38,7 +38,7 @@ class ads_analyst:
 			WHERE 1=1
 			"""
 			if package_name != '':
-				sql += ' AND package_name = "%s" ' % package_name
+				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
 			if dt_start != '':
 				sql += ' AND dt >=  "%s" ' % dt_start
 			if dt_end != '':
@@ -73,7 +73,7 @@ class ads_analyst:
 			select count(distinct image) from ads where 1=1
 			"""
 			if package_name != '':
-				sql += ' AND package_name = "%s"' % package_name
+				sql += ' AND package_name like "%s"' % ('%' + package_name + '%')
 			if adtype != '':
 				sql += ' AND adtype = "%s"' % adtype
 			if geo != '':
