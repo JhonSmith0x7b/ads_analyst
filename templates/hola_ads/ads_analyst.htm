@@ -157,9 +157,13 @@
         '</table>' + 
         '</tr>' +
         '</table></td>' +
+        '<div>' +
         '<a href = "/pyanalyst/ad_detail?image=' + ads[index][6] +'">' +
         '<img class = "ad_image" src = "' + ads[index][6] + '"/>' +
-        '</a>' + 
+        '</a>' +
+        '<a target = "_blank" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + 
+        '<a  download = "projectAIVA" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' +
+        '</div>' +
         '</div>'
         page_row += single_row;
       }
