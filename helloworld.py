@@ -2,7 +2,7 @@
 from flask import Flask, url_for, render_template, g, request, json
 import sqlite3
 import sys;reload(sys);sys.setdefaultencoding('utf-8')
-from  hola_ads import ads_analyst, common_db, common, utils
+from  hola_ads import ads_analyst, common_db, common, utils, category_thinker
 import time
 app = Flask(__name__)
 app.debug = True
@@ -59,6 +59,7 @@ def ad_detail():
 		return render_template('hola_ads/ad_detail.htm', data = query_data.encode('utf-8')), 
 		200, {'Content-Type':'text/html;charset=utf-8'}
 	return render_template('hola_ads/ad_detail.htm', data = '')
+
 
 def get_ads():
 	ads = getattr(g, 'ads', None)

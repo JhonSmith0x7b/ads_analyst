@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, url_for, render_template, g, request, json
 import sqlite3
-import ads_analysis, common_db, common, utils
+import ads_analysis, common_db, common, utils, category_thinker
 DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
 #_db_tool  common db tool
@@ -50,7 +50,14 @@ class ads_analyst:
 			sql += ' GROUP BY image, adtype'
 			sql += ' ORDER BY cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
-			return  json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
+			data = db_tool.query_by_sql(sql)
+			data_category = []
+			for row in data:
+				thinker = category_thinker.thinker(row[14])
+				category = (thinker.think()['category'], '')
+				row += category
+				data_category.append(row)
+			return  json.dumps(data_category, ensure_ascii = False)
 			pass
 		if typical == 'groupby_date_count':
 			sql = """
