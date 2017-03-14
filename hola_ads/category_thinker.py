@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-import urllib, urllib2, json, sqlite3
+import urllib, urllib2, json, sqlite3, time
 import utils
 import threading
 class thinker:
@@ -15,7 +15,7 @@ class thinker:
 		data = cur.fetchall()
 		db.close()
 		if len(data) > 0:
-			return data
+			return data[0]
 		else:
 			data = self.recognize()
 			try:
@@ -23,7 +23,7 @@ class thinker:
 				thread.start()
 			except Exception, e:
 				print 'open sediment thread fail. %s' % str(e)
-			return data
+			return ['', '', '', '', '', data['category']]
 		pass
 
 	def recognize(self):
@@ -31,13 +31,14 @@ class thinker:
 			url = utils.CATEGORY_API
 			request_data = {'pkg': self.pkg}
 			request_data = urllib.urlencode(request_data)
-			request = urllib2.Request(url = url, data = request_data)
+			url += '?%s' % request_data
+			request = urllib2.Request(url = url)
 			response = urllib2.urlopen(request)
 			json_object = json.loads(response.read())
 			return json_object
 		except Exception, e:
 			print 'recongnize error %s' %str(e)
-			return False
+			return {'category':'error'}
 		pass
 
 	def sediment(self, data):
@@ -46,11 +47,11 @@ class thinker:
 			cur = db.cursor()
 			sql = """
 			insert into category_pkg_table
-			values("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", 
-			"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")
+			values('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', 
+			'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
 			""" % (data['pkg'], data['downloadCounts'], data['score'], data['catchAt'], 
 				data['cover'], data['category'], data['android_ver'], data['one'], data['two'], 
-				data['three'], data['four'], data['five'], data['plus'], data['desc'],
+				data['three'], data['four'], data['five'], data['plus'], json.dumps(data['desc']),
 				data['version'], data['fullName'], data['size'])
 			insert_result = cur.execute(sql)
 			db.commit()

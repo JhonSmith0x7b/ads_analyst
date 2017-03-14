@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, url_for, render_template, g, request, json
-import sqlite3
+import sqlite3, time
 import ads_analysis, common_db, common, utils, category_thinker
 DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
@@ -51,12 +51,14 @@ class ads_analyst:
 			sql += ' ORDER BY cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
 			data = db_tool.query_by_sql(sql)
+			pretime = time.time()
 			data_category = []
 			for row in data:
 				thinker = category_thinker.thinker(row[14])
-				category = (thinker.think()['category'], '')
+				category = (thinker.think()[5], '')
 				row += category
 				data_category.append(row)
+			print 'category cost time %s' % (time.time() - pretime)
 			return  json.dumps(data_category, ensure_ascii = False)
 			pass
 		if typical == 'groupby_date_count':
