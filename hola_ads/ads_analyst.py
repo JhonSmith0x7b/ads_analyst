@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, url_for, render_template, g, request, json
 import sqlite3, time
-import ads_analysis, common_db, common, utils, category_thinker
+import common_db, common, utils, category_thinker
 DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
 #_db_tool  common db tool
