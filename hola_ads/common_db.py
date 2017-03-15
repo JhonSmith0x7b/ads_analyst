@@ -32,6 +32,8 @@ class Common_db:
 								passwd = utils.MYSQL_PASSWD,
 								db = utils.MYSQL_DB)
 		self.db = db
+		db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
+		self.db_s = db_s
 		pass
 
 	def init_db(self):
@@ -42,3 +44,16 @@ class Common_db:
 		cur.execute(sql)
 		return cur.fetchall()
 		pass
+
+	def query_sqlite_by_sql(self, sql):
+		cur = self.db_s.cursor()
+		cur.execute(sql)
+		return cur.fetchall()
+		pass
+
+	def close_db(self):
+		try:
+			self.db.close()
+			self.db_s.close()
+		except Exception, e:
+			print 'close db error %s' % str(e)

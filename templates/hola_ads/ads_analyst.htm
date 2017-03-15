@@ -16,7 +16,7 @@
   <body>
     {% include 'hola_ads/head.htm' %}
     <div id = 'select_area'>
-      Type: <select class="selectpicker"  id = 'adtype_selector' data-size="5" title = "{{adtype}}" onchange = 'refresh()'>
+      Type: <select class="selectpicker"  id = 'adtype_selector' data-size="20" title = "{{adtype}}" onchange = 'refresh()'>
       </select>
       Country: <select class="selectpicker" id = 'geo_selector' data-live-search="true" data-size="10" title = " {{geo}}" onchange = 'refresh()'>
       </select>
@@ -69,35 +69,34 @@
 
   </body>
   <script type="text/javascript">
-    function get_count(){
+    function get_selector(){
       $.ajax({
       url : "/pyanalyst/pyquery",
       method : 'post',
       data : {
-        'typical' : 'count_county_type_day'
+        'typical' : 'get_selector'
       },
       dataType : 'json',
       success : function(data){
-        export_count_to_dropdown(data);
+        export_to_dropdown(data);
       },
       error : function(err){
         alert(err);
       }
     });
     }
-    function export_count_to_dropdown(data){
+    function export_to_dropdown(data){
       var results = eval(data);
       var adtype_results = eval(results[0]);
       var geo_results = eval(results[1]);
-      var date_results = eval(results[2]);
       var adtype_results_str = '<option data-subtext = ""></option>'
       for(var index in adtype_results){
-        adtype_results_str += '<option data-subtext = "' + adtype_results[index][1] + '">' + adtype_results[index][0] + '</option>';
+        adtype_results_str += '<option>' + adtype_results[index][0] + '</option>';
       }
       $('#adtype_selector').html(adtype_results_str);
       var geo_results_str = '<option data-subtext = ""></option>';
       for(var index in geo_results){
-        geo_results_str += '<option data-subtext = "' + geo_results[index][1] + '">' + geo_results[index][0] + '</option>';
+        geo_results_str += '<option>' + geo_results[index][0] + '</option>';
       }
       $('#geo_selector').html(geo_results_str);
       $('#adtype_selector').selectpicker('refresh');
@@ -303,11 +302,12 @@
       $('#dt_end_input').val('')
     }
 
+
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
       init_datepicker()
       page_plugin_init()
-      get_count();
+      get_selector();
       data = {{ data|tojson }}
       if(data != null && data != '' && data != '1'){
         exprot_data_to_ad_list(data)
