@@ -71,8 +71,6 @@ class ads_analyst:
 				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
 			elif adtype != '':
 				sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
-			if adtype != '':
-				sql += ' AND adtype = "%s"' % adtype
 			if geo != '':
 				sql += ' AND geo = "%s"' % geo
 			if dt_start != '':
@@ -142,8 +140,9 @@ class ads_analyst:
 	def query_package_list_by_adtype(self, adtype):
 		db_tool = self.get_db()
 		sub_sql = """
-		select pkg from category_pkg_table where category = '%s'
-		""" % adtype
+		select pkg from category_pkg_table where category like '%s'
+		""" % ('%' + adtype + '%')
+		print sub_sql
 		package_list = db_tool.query_sqlite_by_sql(sub_sql)
 		package_list_str = '('
 		for package in package_list:
