@@ -46,14 +46,15 @@ class thinker:
 		if data:
 			cur = db.cursor()
 			sql = """
-			insert into category_pkg_table
-			values('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', 
-			'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
-			""" % (data['pkg'], data['downloadCounts'], data['score'], data['catchAt'], 
+				insert into category_pkg_table
+				values(?, ?, ?, ?, ?, ?, ?, ?, ?, 
+				?, ?, ?, ?, ?, ?, ?, ?)
+				"""
+			insert_result = cur.execute(sql, [data['pkg'], data['downloadCounts'], 
+				data['score'], data['catchAt'], 
 				data['cover'], data['category'], data['android_ver'], data['one'], data['two'], 
-				data['three'], data['four'], data['five'], data['plus'], json.dumps(data['desc']),
-				data['version'], data['fullName'], data['size'])
-			insert_result = cur.execute(sql)
+				data['three'], data['four'], data['five'], data['plus'], data['desc'],
+				data['version'], data['fullName'], data['size']])
 			db.commit()
 			db.close()
 		pass
