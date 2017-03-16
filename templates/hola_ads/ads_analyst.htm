@@ -47,7 +47,6 @@
       </table>
     </div>
     <div id = 'ads_table'></div>
-
     <div id="ads_page"
         style="position: fixed; bottom: 1%; z-index: 9998; right: 20%; display: ;">
       <ul class="pagination">
@@ -131,43 +130,58 @@
     function exprot_data_to_ad_list(data){
       var ads = eval(data);
       $('#ads_table').html('');
-      var page_row = ''
+      var page_cell = ''
       for(var index in ads){
-        var single_row = '<div class = "ads_row">' + 
-        '<img class = "icon_image" src = "' + ads[index][5] + '"/>' + 
-        '<table class = "ads_content">' +
-        '<tr><td><b>Title:</b> ' + decodeURIComponent(ads[index][8]).replace(/\+/g, ' ').substring(0, 40) + '</td>' + 
-        '<td><b>SubTitle:</b> ' + decodeURIComponent(ads[index][7]).replace(/\+/g, ' ') + '</td></tr>' +
-        '<tr><td>' + decodeURIComponent(ads[index][11]).replace(/\+/g, ' ').substring(0, 30) + 
-        '<td>' + decodeURIComponent(ads[index][9]).replace(/\+/g, ' ').substring(0, 40) + '</td>' +
-        '<tr>' +
-        '<tr><td class = "package_info" onclick = "query_via_package(\'' + ads[index][14] + '\')"><b>Pkg:</b> ' + ads[index][14] + '</td>' + 
-        '<td><b>Date:</b> ' + ads[index][15] + '</td>' +
-        '</tr>' +
-        '<tr><td><b>Country:</b> ' + ads[index][16] + '</td>' +
-        '<td><b>Type:</b> ' + ads[index][20] + '</td></tr>' +
-        '<tr>' +
-        '<td><table>' +
-        '<tr>' +
-        '<td>展示次数:  ' + ads[index][19] + '</td>' + 
-        '<td>展示天数: ' + ads[index][17] + '</td>' +
-        '<td>展示国家数: ' + ads[index][18] + '</td>' +
-        '</tr>' +
-        '</table>' + 
-        '</tr>' +
-        '</table></td>' +
-        '<div>' +
-        '<a href = "/pyanalyst/ad_detail?image=' + ads[index][6] +'">' +
-        '<img class = "ad_image" src = "' + ads[index][6] + '"/>' +
-        '</a>' +
-        '<a target = "_blank" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' +
-        '<a target = "_blank" href = "' + ads[index][6] + '&w=1200&h=627' + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + 
-        '<a  download = "projectAIVA" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' +
-        '</div>' +
-        '</div>'
-        page_row += single_row;
+        var cell = '<div class = "ad_cell">'
+        + '<div class = "ad_cell_head">'
+        + '<table>'
+        + '<tr>'
+        + '<td rowspan = "2"><img class = "ad_cell_icon" src = "' + ads[index][5] + '"></td>'
+        + '<td><p class = "ad_cell_title">' + decodeURIComponent(ads[index][8]).replace(/\+/g, ' ').substring(0, 40) + '</p></td>'
+        + '</tr>'
+        + '<tr>'
+        + '<td><p class = "ad_cell_date">' + ads[index][15] + '</p></td>'
+        + '</tr>'
+        + '</table>'
+        + '</div>'
+        + '<div class = "ad_cell_body">'
+        + '<table>'
+        + '<tr><p class = "ad_cell_content">' + decodeURIComponent(ads[index][11]).replace(/\+/g, ' ') + '</p></tr>'
+        + '<tr><img class = "ad_cell_image" src = "' + ads[index][6] + '"/></tr>'
+        + '</table>'
+        + '</div>'
+        + '<div class = "ad_cell_feet">'
+        + '<table>'
+        + '<tr>'
+        + '<td class = "ad_cell_social">' + decodeURIComponent(ads[index][7]).replace(/\+/g, ' ') + '</td>'
+        + '<td class = "ad_cell_button"><button>' + decodeURIComponent(ads[index][9]).replace(/\+/g, ' ') + '</button></td>'
+        + '</tr>'
+        + '</table>'
+        + '</div>'
+        + '<div class = "ad_cell_tail">'
+        + '<table>'
+        + '<tr>'
+        + '<td class = "ad_cell_duration"><img src = "static/pic/Duration.png"/> ' + ads[index][17] + 'd</td>'
+        + '<td class = "ad_cell_heat"><img src = "static/pic/Heat.png"/> ' + ads[index][19] + '</td>'
+        + '<td class = "ad_cell_geo">' + ads[index][16] + '</td>'
+        + '<td class = "ad_cell_category">' + ads[index][20] + '</td>'
+        + '</tr>'
+        + '<tr>'
+        + '<td colspan = "4" class = "ad_cell_pkg">Pkg: <a href = "javascript:query_via_package(\'' + ads[index][14] + '\');">' + ads[index][14] + '</a></td>'
+        + '</tr>'
+        + '</table>'
+        + '<table class = "ad_cell_buttons">'
+        + '<tr>'
+        + '<td>' + '<a target = "_blank" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + '</td>'
+        + '<td>' + '<a target = "_blank" href = "' + ads[index][6] + '&w=1200&h=627' + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
+        + '<td>' + '<a  download = "projectAIVA" href = "' + ads[index][6] + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' + '</td>'
+        + '</tr>'
+        + '</table>'
+        + '</div>'
+        + '</div>'
+        page_cell += cell
       }
-      $('#ads_table').html(page_row);
+      $('#ads_table').html(page_cell)
     }
 
     function page_plugin_init(data){
@@ -414,6 +428,113 @@
     .me_date_picker{
       width: 96px;
     }
+
+    #ads_table{
+    }
+
+    /* page cell css */
+    .ad_cell{
+    background: #FAFAFA;
+    width: 360px;
+    padding: 10px;
+    box-shadow: 0px 2px 2px #888888;
+    font-family: Serif;
+    margin: 10px;
+    height: 420px;
+    float: left;
+    }
+    .ad_cell_head{
+
+    }
+    .ad_cell_icon{
+      width: 48px;
+      height: 48px;
+      margin-right: 20px;
+    }
+    .ad_cell_title{
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .ad_cell_date{
+      font-size: 12px;
+    }
+    .ad_cell_body{
+
+    }
+    .ad_cell_content{
+      font-size: 12px;
+      width: 340px;
+      height: 36px;
+    }
+    .ad_cell_image{
+      width: 340px;
+    }
+    .ad_cell_feet{
+      box-shadow: 0px 1px 1px #888888;
+      width: 340px;
+      margin-top: 5px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      margin-bottom: 5px
+    }
+    .ad_cell_social{
+      padding-left: 10px;
+      font-size: 12px;
+      width: 180px;
+    }
+    .ad_cell_button button{
+      width: 144px;
+      height: 24px;
+      background: #ECECEC;
+      border:1px solid #FFFFFF;
+      border-radius:2px;
+      font-size: 12px;
+    }
+    .ad_cell_tail{
+      margin-top: 20px;
+    }
+    .ad_cell_tail table{
+      font-size: 12px;
+      width: 340px;
+    }
+
+    .ad_cell_tail table tr{
+      display: block;
+      padding-bottom: 8px;
+    }
+
+    .ad_cell_category{
+    }
+
+    .ad_cell_duration{
+      width: 60px;
+    }
+
+    .ad_cell_heat{
+      width: 60px;
+    }
+
+    .ad_cell_geo{
+      width: 48px;
+      margin-right: 12px;
+    }
+
+    .ad_cell_pkg{
+
+    }
+
+    .ad_cell_buttons{
+      width: 300px;
+    }
+
+    .ad_cell_buttons input{
+      width: 96px;
+      height: 24px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+  /* ad cell css over */
 
   </style>
 </html>
