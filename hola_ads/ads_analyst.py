@@ -53,7 +53,7 @@ class ads_analyst:
 			if geo != '':
 				sql += ' AND geo = "%s" ' % geo
 			sql += ' GROUP BY image, geo, category'
-			sql += ' ORDER BY cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
+			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
 			data = db_tool.query_by_sql(sql)
 			return  json.dumps(data, ensure_ascii = False)
