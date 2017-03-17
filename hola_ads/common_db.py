@@ -27,10 +27,11 @@ class Common_db:
 	# 	return cur.fetchall()
 
 	def __init__(self, nanimo):
-		db = MySQLdb.connect(host = utils.MYSQL_HOST,
-								user = utils.MYSQL_USER,
-								passwd = utils.MYSQL_PASSWD,
-								db = utils.MYSQL_DB)
+		# db = MySQLdb.connect(host = utils.MYSQL_HOST,
+		# 						user = utils.MYSQL_USER,
+		# 						passwd = utils.MYSQL_PASSWD,
+		# 						db = utils.MYSQL_DB)
+		db = sqlite3.connect(utils.DATABASE_ADS)
 		self.db = db
 		db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
 		self.db_s = db_s

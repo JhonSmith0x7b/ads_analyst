@@ -36,7 +36,7 @@ class ads_analyst:
 			sql = """
 			SELECT *, count( DISTINCT dt) AS cd, 
 			count(DISTINCT geo) AS cg, count(*) AS cc 
-			FROM ads
+			FROM ads_table
 			WHERE 1=1
 			"""
 			if package_name != '':
@@ -65,7 +65,7 @@ class ads_analyst:
 			pass
 		if typical == 'query_page_via_type_geo_date':
 			sql = """
-			select count(distinct image) from ads where 1=1
+			select count(distinct image) from ads_table where 1=1
 			"""
 			if package_name != '':
 				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
@@ -82,7 +82,7 @@ class ads_analyst:
 		if typical == 'get_selector':
 			type_result = json.dumps(db_tool.query_sqlite_by_sql('select category from category_pkg_table group by category order by count(category) DESC'), 
 				ensure_ascii = False)
-			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo from ads GROUP BY geo order by count(geo) DESC'), 
+			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo from ads_table GROUP BY geo order by count(geo) DESC'), 
 				ensure_ascii = False)
 			result_list = [type_result, geo_reuslt]
 			return json.dumps(result_list, ensure_ascii = False)
@@ -115,7 +115,7 @@ class ads_analyst:
 			count(*),
 			REPLACE(substr(event_time, 1, 6), '/', '-') d
 			FROM
-				ads
+				ads_table
 			WHERE
 				image like '%s'
 			GROUP BY
@@ -130,9 +130,9 @@ class ads_analyst:
 			#select geo, count(geo) as c from ads GROUP BY geo order by c DESC;
 			#select substr(event_time, 0, 12), count(substr(event_time, 0, 12)) as c from ads group by substr(event_time, 0, 12) order by c desc;
 			type_result = json.dumps(db_tool.query_sqlite_by_sql('select category, 1 from category_pkg_table group by category order by count(category)'), ensure_ascii = False)
-			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo, count(geo) as c from ads GROUP BY geo order by c DESC'), ensure_ascii = False)
-			date_result = json.dumps(db_tool.query_by_sql('select dt as d, count(dt) as c from ads group by dt order by d desc'), ensure_ascii = False)
-			count = count = db_tool.query_by_sql('select count(*) from ads')
+			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo, count(geo) as c from ads_table GROUP BY geo order by c DESC'), ensure_ascii = False)
+			date_result = json.dumps(db_tool.query_by_sql('select dt as d, count(dt) as c from ads_table group by dt order by d desc'), ensure_ascii = False)
+			count = count = db_tool.query_by_sql('select count(*) from ads_table')
 			result_list = [type_result, geo_reuslt, date_result, count]
 			return json.dumps(result_list, ensure_ascii = False)
 		
