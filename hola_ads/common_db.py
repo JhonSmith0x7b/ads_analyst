@@ -33,8 +33,8 @@ class Common_db:
 		# 						db = utils.MYSQL_DB)
 		db = sqlite3.connect(utils.DATABASE_ADS)
 		self.db = db
-		db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
-		self.db_s = db_s
+		# db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
+		# self.db_s = db_s
 		pass
 
 	def init_db(self):
@@ -47,9 +47,7 @@ class Common_db:
 		pass
 
 	def query_sqlite_by_sql(self, sql):
-		cur = self.db_s.cursor()
-		cur.execute(sql)
-		return cur.fetchall()
+		return self.query_by_sql(sql)
 		pass
 
 	def close_db(self):
