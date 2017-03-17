@@ -34,9 +34,12 @@ class ads_analyst:
 			sql_page = '1'
 		if typical == 'ads_list':
 			sql = """
-			SELECT *, count( DISTINCT dt) AS cd, 
-			count(DISTINCT geo) AS cg, count(*) AS cc 
-			FROM ads_table
+			SELECT ads.*, count( DISTINCT dt) AS cd, 
+			count(*) AS cc , category
+			FROM ads_table ads
+			left join(
+			select pkg, category from category_pkg_table
+			) cp on ads.package_name = cp.pkg
 			WHERE 1=1
 			"""
 			if package_name != '':
@@ -49,19 +52,11 @@ class ads_analyst:
 				sql += ' AND dt <= "%s" ' % dt_end
 			if geo != '':
 				sql += ' AND geo = "%s" ' % geo
-			sql += ' GROUP BY image, adtype'
+			sql += ' GROUP BY image, geo, category'
 			sql += ' ORDER BY cc DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
 			data = db_tool.query_by_sql(sql)
-			pretime = time.time()
-			data_category = []
-			for row in data:
-				thinker = category_thinker.thinker(row[14])
-				category = (thinker.think()[5], '')
-				row += category
-				data_category.append(row)
-			print 'category cost time %s' % (time.time() - pretime)
-			return  json.dumps(data_category, ensure_ascii = False)
+			return  json.dumps(data, ensure_ascii = False)
 			pass
 		if typical == 'query_page_via_type_geo_date':
 			sql = """

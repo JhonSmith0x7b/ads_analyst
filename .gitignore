@@ -3,3 +3,4 @@ hola_ads/utils.pyc
 static/db/category_pkg.db
 *.db
 *.pyc
+*.log
