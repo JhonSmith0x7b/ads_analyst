@@ -2,6 +2,7 @@
 
 import sqlite3, os, MySQLdb, sys, urllib, urllib2, json, time
 sys.path.append('../../')
+sys.path.append('/home/wangxin/www/ads_analyst/')
 from hola_ads import utils 
 
 counter = 0

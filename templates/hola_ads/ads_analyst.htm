@@ -88,12 +88,12 @@
       var results = eval(data);
       var adtype_results = eval(results[0]);
       var geo_results = eval(results[1]);
-      var adtype_results_str = '<option data-subtext = ""></option>'
+      var adtype_results_str = '<option data-subtext = "">---</option>'
       for(var index in adtype_results){
         adtype_results_str += '<option>' + adtype_results[index][0] + '</option>';
       }
       $('#adtype_selector').html(adtype_results_str);
-      var geo_results_str = '<option data-subtext = ""></option>';
+      var geo_results_str = '<option data-subtext = "">---</option>';
       for(var index in geo_results){
         geo_results_str += '<option>' + geo_results[index][0] + '</option>';
       }
@@ -116,12 +116,18 @@
     }
 
     function refresh(){
-      if($('#adtype_selector').val() != ''){
+      if($('#adtype_selector').val() == '---'){
+        $('#adtype_input').val() == ''
+      }else if($('#adtype_selector').val() != ''){
         $('#adtype_input').val($('#adtype_selector').val())
       }
-      if($('#geo_selector').val() != ''){
+
+      if($('#geo_selector').val() == '---'){
+        $('#geo_input').val() == ''
+      } else if($('#geo_selector').val() != ''){
         $('#geo_input').val($('#geo_selector').val())
       }
+      
       if($('#package_name_selector').val() != ''){
         $('#package_name_input').val($('#package_name_selector').val())
       }
@@ -303,8 +309,8 @@
     }
 
     function clear(){
-      $('#adtype_selector').selectpicker('val', '')
-      $('#geo_selector').selectpicker('val', '')
+      $('#adtype_selector').selectpicker('val', '---')
+      $('#geo_selector').selectpicker('val', '---')
       $('#adtype_selector').selectpicker('refresh');
       $('#geo_selector').selectpicker('refresh');
       $('#package_name_selector').val('')
