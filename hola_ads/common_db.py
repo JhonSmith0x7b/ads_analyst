@@ -27,14 +27,14 @@ class Common_db:
 	# 	return cur.fetchall()
 
 	def __init__(self, nanimo):
-		# db = MySQLdb.connect(host = utils.MYSQL_HOST,
-		# 						user = utils.MYSQL_USER,
-		# 						passwd = utils.MYSQL_PASSWD,
-		# 						db = utils.MYSQL_DB)
-		db = sqlite3.connect(utils.DATABASE_ADS)
+		db = MySQLdb.connect(host = utils.MYSQL_HOST,
+								user = utils.MYSQL_USER,
+								passwd = utils.MYSQL_PASSWD,
+								db = utils.MYSQL_DB)
+		# db = sqlite3.connect(utils.DATABASE_ADS)
 		self.db = db
-		# db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
-		# self.db_s = db_s
+		db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
+		self.db_s = db_s
 		pass
 
 	def init_db(self):
@@ -47,7 +47,9 @@ class Common_db:
 		pass
 
 	def query_sqlite_by_sql(self, sql):
-		return self.query_by_sql(sql)
+		cur = self.db_s.cursor()
+		cur.execute(sql)
+		return cur.fetchall()
 		pass
 
 	def close_db(self):

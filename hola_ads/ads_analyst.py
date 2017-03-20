@@ -35,11 +35,8 @@ class ads_analyst:
 		if typical == 'ads_list':
 			sql = """
 			SELECT ads.*, count( DISTINCT dt) AS cd, 
-			count(*) AS cc , category
-			FROM ads_table ads
-			left join(
-			select pkg, category from category_pkg_table
-			) cp on ads.package_name = cp.pkg
+			count(*) AS cc
+			FROM ads ads
 			WHERE 1=1
 			"""
 			if package_name != '':
@@ -52,15 +49,26 @@ class ads_analyst:
 				sql += ' AND dt <= "%s" ' % dt_end
 			if geo != '':
 				sql += ' AND geo = "%s" ' % geo
-			sql += ' GROUP BY image, geo, category'
+			sql += ' GROUP BY image, geo '
 			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
 			data = db_tool.query_by_sql(sql)
-			return  json.dumps(data, ensure_ascii = False)
+			data_category = []
+			for row in data:
+				result = self.query_adtype_via_package(row[14])
+				if len(result) > 0:
+					category = (result[0][0], '')
+					row += category
+					data_category.append(row)
+				else:
+					category = ('', '')
+					row += category
+					data_category.append(row)
+			return  json.dumps(data_category, ensure_ascii = False)
 			pass
 		if typical == 'query_page_via_type_geo_date':
 			sql = """
-			select count(distinct image) from ads_table where 1=1
+			select count(distinct image) from ads where 1=1
 			"""
 			if package_name != '':
 				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
@@ -77,7 +85,7 @@ class ads_analyst:
 		if typical == 'get_selector':
 			type_result = json.dumps(db_tool.query_sqlite_by_sql('select category from category_pkg_table group by category order by count(category) DESC'), 
 				ensure_ascii = False)
-			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo from ads_table GROUP BY geo order by count(geo) DESC'), 
+			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo from ads GROUP BY geo order by count(geo) DESC'), 
 				ensure_ascii = False)
 			result_list = [type_result, geo_reuslt]
 			return json.dumps(result_list, ensure_ascii = False)
@@ -137,10 +145,16 @@ class ads_analyst:
 		sub_sql = """
 		select pkg from category_pkg_table where category like '%s'
 		""" % ('%' + adtype + '%')
-		print sub_sql
 		package_list = db_tool.query_sqlite_by_sql(sub_sql)
 		package_list_str = '('
 		for package in package_list:
 			package_list_str += ' "%s", ' % package[0]
 		package_list_str += '"nanimo") '
 		return package_list_str
+	def query_adtype_via_package(self, package):
+		db_tool = self.get_db()
+		sql = """
+		select category from category_pkg_table where pkg = '%s'
+		""" % package
+		print sql
+		return db_tool.query_sqlite_by_sql(sql)

@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 
 import sqlite3, os, MySQLdb, sys, urllib, urllib2, json, time
-sys.path.append('../../')
 sys.path.append('/home/wangxin/www/ads_analyst/')
 from hola_ads import utils 
 
@@ -18,6 +17,10 @@ def get_mysql_db():
 
 def get_sqlite_db():
 	db = sqlite3.connect('ads_db.db')
+	return db
+
+def get_sqlite_category_db():
+	db = sqlite3.connect('category_pkg.db')
 	return db
 
 def get_all_from_mysql():
@@ -76,12 +79,14 @@ def sediment(data):
 
 def check_new():
 	db = get_sqlite_db()
+	db_category = get_sqlite_category_db()
 	cur = db.cursor()
+	cur_category = db_category.cursor()
 	cur.execute('select distinct package_name from ads_table')
 	packages = cur.fetchall()
 	for package in packages:
-		cur.execute('select 1 from category_pkg_table where pkg = ?', [package[0],])
-		data = cur.fetchall()
+		cur_category.execute('select 1 from category_pkg_table where pkg = ?', [package[0],])
+		data = cur_category.fetchall()
 		if len(data) < 1:
 			try:
 				sediment_category(recognize(package[0]))
@@ -91,7 +96,7 @@ def check_new():
 def sediment_category(data):
 	global counter
 	global counter_category
-	db = get_sqlite_db()
+	db = get_sqlite_category_db()
 	if data:
 		cur = db.cursor()
 		sql = """
