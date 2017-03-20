@@ -127,7 +127,7 @@
       } else if($('#geo_selector').val() != ''){
         $('#geo_input').val($('#geo_selector').val())
       }
-      
+
       if($('#package_name_selector').val() != ''){
         $('#package_name_input').val($('#package_name_selector').val())
       }
@@ -326,13 +326,13 @@
 
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
-      init_datepicker()
-      page_plugin_init()
-      get_selector();
       data = {{ data|tojson }}
       if(data != null && data != '' && data != '1'){
         exprot_data_to_ad_list(data)
       }
+      init_datepicker()
+      page_plugin_init()
+      get_selector();
     }
   </script>
   <style type="text/css">
