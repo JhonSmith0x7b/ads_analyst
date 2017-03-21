@@ -2,6 +2,7 @@
 
 import sqlite3, os, MySQLdb, sys, urllib, urllib2, json, time
 sys.path.append('/home/wangxin/www/ads_analyst/')
+sys.path.append('/Users/jhonsmith/develop/git/ads_analyst')
 from hola_ads import utils 
 
 counter = 0
@@ -16,13 +17,13 @@ def get_mysql_db():
 	return db
 
 def get_sqlite_db():
-	db = sqlite3.connect('ads_db.db')
+	db = sqlite3.connect(utils.DATABASE_ADS)
 	return db
 
 def get_sqlite_category_db():
-	db = sqlite3.connect('category_pkg.db')
+	db = sqlite3.connect(utils.DATABASE_CATEGORAY)
 	return db
-
+	
 def get_all_from_mysql():
 	cur = get_mysql_db().cursor()
 	cur.execute('select * from ads where dt > %s', (str(int(time.strftime('%Y%m%d')) - 7), ))
