@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, url_for, render_template, g, request, json
-import sqlite3, time
+import sqlite3, time, hashlib
 import common_db, common, utils, category_thinker
 DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
@@ -29,7 +29,7 @@ class ads_analyst:
 		sql_page = page if page != '' else '1'
 		sql_offset = offset if offset != '' else '10'
 		try:
-			sql_page = (int(sql_page) -1) * int(sql_offset)
+			sql_page = (int(sql_page) - 1) * int(sql_offset)
 		except:
 			sql_page = '1'
 		if typical == 'ads_list':
@@ -57,14 +57,19 @@ class ads_analyst:
 			for row in data:
 				result = self.query_adtype_via_package(row[14])
 				if len(result) > 0:
-					category = (result[0][0], '')
+					category = (result[0][0],)
 					row += category
 					data_category.append(row)
 				else:
 					category = ('', '')
 					row += category
 					data_category.append(row)
-			return  json.dumps(data_category, ensure_ascii = False)
+			data_s3 = []
+			for row in data_category:
+				s3_url = common.get_s3_url(row[6])
+				row += (s3_url,)
+				data_s3.append(row)
+			return  json.dumps(data_s3, ensure_ascii = False)
 			pass
 		if typical == 'query_page_via_type_geo_date':
 			sql = """
