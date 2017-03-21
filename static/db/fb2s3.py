@@ -127,5 +127,18 @@ def start():
 					thread.start()
 			except Exception, e:
 				print '2 s3 error %s' % str(e)
+	log =  """
+
+
+	%s done.
+
+	image add 2 s3: %s
+
+	added 2 s3 : %s
+
+	""" % (time.strftime('%Y%m%d'), counter, over_counter)
+	with open('catch.log', 'a') as f:
+		f.write(log)
+		f.close()
 
 start()
