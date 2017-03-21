@@ -85,9 +85,10 @@ def check_new():
 	db = get_sqlite_db()
 	cur = db.cursor()
 	sql = """
-	select distinct image from ads_table where image not in 
+	select distinct image from ads_table where dt > "%s" 
+	and image not in 
 		(select image from fb2s3_table)
-	"""
+	""" % (str(int(time.strftime('%Y%m%d')) - 7))
 	print sql
 	cur.execute(sql)
 	images = cur.fetchall()

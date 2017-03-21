@@ -2,7 +2,7 @@
 import hashlib
 
 def get_s3_url(url):
-	return 'http://imgcn.dataverse.cn/%s' % get_s3_uri
+	return 'http://imgcn.dataverse.cn/%s' % get_s3_uri(url)
 	pass
 
 def get_s3_uri(url):
