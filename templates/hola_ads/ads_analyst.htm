@@ -15,32 +15,35 @@
   </head>
   <body>
     {% include 'hola_ads/head.htm' %}
-    <div id = 'select_area'>
-      Type: <select class="selectpicker"  id = 'adtype_selector' data-size="20" title = "{{adtype}}" onchange = 'refresh()'>
-      </select>
-      Country: <select class="selectpicker" id = 'geo_selector' data-live-search="true" data-size="10" title = " {{geo}}" onchange = 'refresh()'>
-      </select>
-      Date: 
-        <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}">
-        TO
-        <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}">
-      Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
-      <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal">
-        Query
-      </button>
-      <button type="button" id = 'clear_button' class="btn btn-danger btn-g" data-toggle="modal">
-        Clear
-      </button>
-    </div>
 
-    <div id = 'select_input'>
-      <input type="text" name="" id = 'adtype_input' value = '{{adtype}}'/>
-      <input type="text" name="" id = 'geo_input' value = '{{geo}}'/>
-      <input type="text" name="" id = 'package_name_input' value = '{{package_name}}'/>
-      <input type="text" name="" id = 'dt_start_input' value = '{{dt_start}}'/>
-      <input type="text" name="" id = 'dt_end_input' value = '{{dt_end}}'/>
-    </div>
+    <div id= 'top'>
+      <div id = 'select_area'>
+        <select class="selectpicker"  id = 'adtype_selector' data-size="20" title = "Type" onchange = 'refresh()'>
+        </select>
+        <select class="selectpicker" id = 'geo_selector' data-live-search="true" data-size="10" title = " Country" onchange = 'refresh()'>
+        </select>
+        Date: 
+          <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}" onchange="refresh();">
+          TO
+          <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}" onchange="refresh();">
+        Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+      </div>
 
+      <div id = 'select_input'>
+        搜索条件: 
+        <span  class = "query_tag" value = "{{adtype}}" id = 'adtype_input' onclick = "tag_remove(this);">{{adtype}}</span>
+        <span  class = "query_tag" value = "{{geo}}" id = 'geo_input' onclick = "tag_remove(this);">{{geo}}</span>
+        <span  class = "query_tag" value = "{{package_name}}" id = 'package_name_input' onclick = "tag_remove(this);">{{package_name}}</span>
+        <span  class = "query_tag" value = "{{dt_start}}" id = 'dt_start_input' onclick = "tag_remove(this);">{{dt_start}}</span>
+        <span  class = "query_tag" value = "{{dt_end}}" id = 'dt_end_input' onclick = "tag_remove(this);">{{dt_end}}</span>
+        <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal">
+          Query
+        </button>
+        <button type="button" id = 'clear_button'  style = "display: none;" class="btn btn-danger btn-g" data-toggle="modal">
+          Clear
+        </button>
+      </div>
+    </div>
     <div id = 'ads_detail'>
       <table id = 'ads_detail_table'>
         
@@ -88,12 +91,12 @@
       var results = eval(data);
       var adtype_results = eval(results[0]);
       var geo_results = eval(results[1]);
-      var adtype_results_str = '<option data-subtext = "">---</option>'
+      var adtype_results_str = ''
       for(var index in adtype_results){
         adtype_results_str += '<option>' + adtype_results[index][0] + '</option>';
       }
       $('#adtype_selector').html(adtype_results_str);
-      var geo_results_str = '<option data-subtext = "">---</option>';
+      var geo_results_str = '';
       for(var index in geo_results){
         geo_results_str += '<option>' + geo_results[index][0] + '</option>';
       }
@@ -103,11 +106,11 @@
     }
     document.getElementById('query_button').onclick = function(){
       var href_str = '/pyanalyst?doquery=hai';
-      var adtype = $('#adtype_input').val()
-      var geo = $('#geo_input').val()
-      var dt_start = $('#dt_start_input').val()
-      var dt_end = $('#dt_end_input').val()
-      var package_name = $('#package_name_input').val()
+      var adtype = $('#adtype_input').attr('value')
+      var geo = $('#geo_input').attr('value')
+      var dt_start = $('#dt_start_input').attr('value')
+      var dt_end = $('#dt_end_input').attr('value')
+      var package_name = $('#package_name_input').attr('value')
       var page = ''
       var offset = '10'
       href_str += '&adtype=' + adtype + '&package_name=' + package_name + '&geo=' + geo + '&dt_start=' + dt_start
@@ -116,20 +119,35 @@
     }
 
     function refresh(){
-      if($('#adtype_selector').val() == '---'){
-        $('#adtype_input').val() == ''
-      }else if($('#adtype_selector').val() != ''){
-        $('#adtype_input').val($('#adtype_selector').val())
+      if($('#adtype_selector').val() != ''){
+        $('#adtype_input').attr('value', $('#adtype_selector').val())
+        $('#adtype_input').css('display', 'inline')
+        $('#adtype_input').html($('#adtype_selector').val())
       }
 
-      if($('#geo_selector').val() == '---'){
-        $('#geo_input').val() == ''
-      } else if($('#geo_selector').val() != ''){
-        $('#geo_input').val($('#geo_selector').val())
+      if($('#geo_selector').val() != ''){
+        $('#geo_input').attr('value', $('#geo_selector').val())
+        $('#geo_input').css('display', 'inline')
+        $('#geo_input').html($('#geo_selector').val())
       }
 
       if($('#package_name_selector').val() != ''){
-        $('#package_name_input').val($('#package_name_selector').val())
+        $('#package_name_input').attr('value', $('#package_name_selector').val())
+        $('#package_name_input').css('display', 'inline')
+        $('#package_name_input').html($('#package_name_selector').val())
+      }
+
+      if($('#start_datepicker').val() != ''){
+        $('#dt_start_input').attr('value', $('#start_datepicker').val())
+        $('#dt_start_input').css('display', 'inline')
+        $('#dt_start_input').html($('#start_datepicker').val())
+
+      }
+
+      if($('#end_datepicker').val() != ''){
+        $('#dt_end_input').attr('value', $('#end_datepicker').val())
+        $('#dt_end_input').css('display', 'inline')
+        $('#dt_end_input').html($('#end_datepicker').val())
       }
     }
 
@@ -291,7 +309,6 @@
       })
       $('#start_datepicker').datepicker().on('changeDate', function(e){
         $('#start_datepicker').datepicker('hide')
-        $('#dt_start_input').val($('#start_datepicker').val())
       })
       $('#end_datepicker').datepicker({
         format: 'yyyymmdd',
@@ -301,7 +318,6 @@
       })
       $('#end_datepicker').datepicker().on('changeDate', function(e){
         $('#end_datepicker').datepicker('hide')
-        $('#dt_end_input').val($('#end_datepicker').val())
       })
     }
     document.getElementById('clear_button').onclick = function(){
@@ -309,18 +325,80 @@
     }
 
     function clear(){
-      $('#adtype_selector').selectpicker('val', '---')
-      $('#geo_selector').selectpicker('val', '---')
+      $('#adtype_selector').selectpicker('val', '')
+      $('#geo_selector').selectpicker('val', '')
       $('#adtype_selector').selectpicker('refresh');
       $('#geo_selector').selectpicker('refresh');
       $('#package_name_selector').val('')
       $('#start_datepicker').val('')
       $('#end_datepicker').val('')
-      $('#adtype_input').val('')
-      $('#geo_input').val('')
-      $('#package_name_input').val('')
-      $('#dt_start_input').val('')
-      $('#dt_end_input').val('')
+      refresh()
+    }
+
+    function tag_remove(element){
+      switch(element.id){
+        case "adtype_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
+        case "geo_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
+        case "package_name_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
+        case "dt_start_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
+        case "dt_end_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
+        default:{
+
+        }
+      }
+    }
+
+    function init_tag(){
+      var type_tag = "{{adtype}}"
+      if (type_tag == ""){
+        $('#adtype_input').css('display', 'none')
+      }else{
+        $('#adtype_input').css('display', 'inline')
+      }
+      var geo_tag = "{{geo}}"
+      if (geo_tag == ""){
+        $('#geo_input').css('display', 'none')
+      }else{
+        $('#geo_input').css('display', 'inline')
+      }
+      var package_name_tag = "{{package_name}}"
+      if (package_name_tag == ""){
+        $('#package_name_input').css('display', 'none')
+      }else{
+        $('#package_name_input').css('display', 'inline')
+      }
+      var dt_start_tag = "{{dt_start}}"
+      if (dt_start_tag == ""){
+        $('#dt_start_input').css('display', 'none')
+      }else{
+        $('#dt_start_input').css('display', 'inline')
+      }
+      var dt_end_tag = "{{dt_end}}"
+      if (dt_end_tag == ""){
+        $('#dt_end_input').css('display', 'none')
+      }else{
+        $('#dt_end_input').css('display', 'inline')
+      }
     }
 
 
@@ -332,19 +410,41 @@
       }
       init_datepicker()
       page_plugin_init()
-      get_selector();
+      get_selector()
+      init_tag()
     }
   </script>
   <style type="text/css">
+    body{
+      background: #f2f2f2;
+    }
+    #top{
+      position: sticky;
+      background: #f2f2f2;
+      box-shadow: 0px 1px 1px #000000;
+      width: 100%;
+      top: 0px;
+    }
+    .query_tag{
+      border: 1px solid #f2f2f2;
+      border-radius: 3px;
+      padding: 5px;
+      margin: 3px;
+      cursor: pointer;
+      background: #00CCFF;
+      color: #222222;
+      font-size: 12px;
+      display: none;
+    }
+
     #select_area {
-      margin-top: 64px;
       padding: 10px;
       display: ;
     }
     #select_input{
-      margin-top: 90px;
       padding: 10px;
-      display: none;
+      display: ;
+      text-align: center;
     }
     #nav {
       visibility: ;
