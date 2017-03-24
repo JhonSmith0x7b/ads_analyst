@@ -48,6 +48,11 @@ def query_route():
 		page = request.form.get('page', ''), offset = request.form.get('offset', ''))
 	return json_data, 200, {'Content-Type':'text/json;charset=utf-8'}
 
+@app.route('/pyanalyst/cat_image', methods = ['get'])
+def cat_image():
+	return render_template('hola_ads/cat_image.htm', img_src= request.args.get('img_src', ''))
+	pass
+
 @app.route('/pyanalyst/ad_detail')
 def ad_detail():
 	if not check_ip():
