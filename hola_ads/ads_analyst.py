@@ -24,7 +24,9 @@ class ads_analyst:
 	def query(self, typical):
 		db_tool = self.get_db
 			
-	def query_via_parameter(self, typical, request_id = '', icon = '', image = '', package_name = '', adtype = '', geo = '', dt_start = '', dt_end = '', page = '', offset = ''):
+	def query_via_parameter(self, typical, request_id = '', icon = '', image = '', 
+		package_name = '', adtype = '', geo = '', dt_start = '', 
+		dt_end = '', page = '', offset = '', rival_list = ''):
 		db_tool = self.get_db()
 		sql_page = page if page != '' else '1'
 		sql_offset = offset if offset != '' else '10'
@@ -49,6 +51,8 @@ class ads_analyst:
 				sql += ' AND dt <= "%s" ' % dt_end
 			if geo != '':
 				sql += ' AND geo = "%s" ' % geo
+			if rival_list != '':
+				sql += ' AND package_name in %s' % rival_list
 			sql += ' GROUP BY image, geo '
 			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
@@ -73,7 +77,7 @@ class ads_analyst:
 			pass
 		if typical == 'query_page_via_type_geo_date':
 			sql = """
-			select count(distinct image) from ads where 1=1
+			select count(distinct concat(image, geo)) from ads where 1=1
 			"""
 			if package_name != '':
 				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
@@ -85,6 +89,8 @@ class ads_analyst:
 				sql += ' AND dt >= "%s"' % (dt_start)
 			if dt_end != '':
 				sql += ' AND dt <= "%s"' % (dt_end)
+			if rival_list != '':
+				sql += ' AND package_name in %s' % rival_list
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		if typical == 'get_selector':
@@ -115,7 +121,21 @@ class ads_analyst:
 			result = json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 			print result, time.time() - pretime
 			pass
-
+		if typical == 'get_rival_list':
+			rival_type = ["tasty_treats", "slots"]
+			sql = """
+			select * from rival_table where rival in ("%s", "%s") order by rival
+			""" % (rival_type[0], rival_type[1])
+			rival_list = db_tool.query_sqlite_by_sql(sql)
+			return_list = []
+			for r in rival_type:
+				return_list.append([])
+			for rival in rival_list:
+				for t in rival_type:
+					if rival[2] == t:
+						return_list[rival_type.index(t)].append(rival)
+			return json.dumps(return_list, ensure_ascii = False)
+			pass
 		#deprecate
 		if typical == 'groupby_date_count':
 			sql = """
@@ -161,5 +181,4 @@ class ads_analyst:
 		sql = """
 		select category from category_pkg_table where pkg = '%s'
 		""" % package
-		print sql
 		return db_tool.query_sqlite_by_sql(sql)

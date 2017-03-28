@@ -23,10 +23,15 @@
         <select class="selectpicker" id = 'geo_selector' data-live-search="true" data-size="10" title = " Country" onchange = 'refresh()'>
         </select>
         Date: 
-          <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}" onchange="refresh();">
-          TO
-          <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}" onchange="refresh();">
-        Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+        <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}" onchange="refresh();">
+        TO
+        <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}" onchange="refresh();">
+      Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+        <button id = "rival_button" type="button" class="btn btn-info" data-toggle="collapse" data-target="#rival_content">
+        竞品查询
+        </button>
+      </div>
+      <div id="rival_content" class="collapse on">
       </div>
 
       <div id = 'select_input'>
@@ -71,6 +76,7 @@
 
   </body>
   <script type="text/javascript">
+    window.OFFSET = 15
     function get_selector(){
       $.ajax({
       url : "/pyanalyst/pyquery",
@@ -112,9 +118,10 @@
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
       var page = ''
-      var offset = '10'
+      var rival_list = get_rival_list_str()
+      var offset = OFFSET
       href_str += '&adtype=' + adtype + '&package_name=' + package_name + '&geo=' + geo + '&dt_start=' + dt_start
-      + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset
+      + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
       window.location.href = href_str;
     }
 
@@ -209,6 +216,7 @@
     }
 
     function page_plugin_init(data){
+      var offset = OFFSET
       $.ajax({
         url : "/pyanalyst/pyquery",
         method : 'post',
@@ -219,7 +227,8 @@
           'dt_start' : $('#dt_start_input').val(),
           'dt_end' : $('#dt_end_input').val(),
           'package_name' : $('#package_name_input').val(),
-          'offset' : 10
+          'offset' : offset,
+          'rival_list' : '{{ rival_list| safe }}'
         },
         dataType : 'json',
         success : function(data){
@@ -227,7 +236,7 @@
           //refresh plugin
           var selector = $('#ads_page_selector')
           var options_str = ''
-          for(var i = Math.ceil(count / 10); i > 0; i --){
+          for(var i = Math.ceil(count / offset); i > 0; i --){
             options_str +=
             '<option>' + i + '</option>'
           }
@@ -288,9 +297,10 @@
       var dt_end = $('#dt_end_input').val()
       var package_name = $('#package_name_input').val()
       var page = page + ''
-      var offset = '10'
+      var offset = OFFSET
+      var rival_list = '{{ rival_list | safe }}'
       href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
-      + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset
+      + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
       window.location.href = href_str
     }
 
@@ -401,6 +411,66 @@
       }
     }
 
+    function get_rival_list(){
+      $.ajax({
+        url : "/pyanalyst/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'get_rival_list'
+        },
+        dataType : 'json',
+        success : function(data){
+          export_to_rival_content(eval(data))
+        },
+        error : function(err){
+          alert(err.status)
+        }
+      })
+    }
+
+    function export_to_rival_content(data){
+      rival_content = $('#rival_content')
+      var all_content = '<div>'
+      for(var index in data){
+        var id = data[index][0][2]
+        var id_s = id + '_s'
+        var content = '<div class = "rival_title" id = ' + data[index][0][2] + '><label>' + data[index][0][2] + 
+        '<input type = "checkbox" value = "cool" onchange="rival_check(\'' + id + '\', \'' + id_s + '\')"/></label>' + '</div><div class = "rival_list" id = "' + id_s + '">'
+        for(var index1 in data[index]){
+          content += '<span><input value = "' + data[index][index1][1] + '" type = "checkbox"/>' + data[index][index1][0] + '</span>'
+        }
+        content += '</div>'
+        all_content += content
+      }
+      all_content += '</div>'
+      rival_content.html(all_content)
+    }
+
+    function rival_check(id, ids){
+      var head_check = $('#' + id + ' input')[0]
+      if(head_check.checked){
+        var checkboxes = $('#' + ids + ' input[type=checkbox]').map(function(_, el){
+        $(el).prop('checked', true)
+        })
+      }else{
+        var checkboxes = $('#' + ids + ' input[type=checkbox]').map(function(_, el){
+        $(el).prop('checked', false)
+        })
+      }
+    }
+
+    function get_rival_list_str(){
+      var checkboxes = $('#rival_content input[type=checkbox]').map(function(_,el){
+        if(el.checked){
+          return '"' + $(el).val() + '"'
+        }
+      }).get()
+      if(checkboxes.join(',') == ''){
+        return ''
+      }
+      var rival_list = '(' + checkboxes.join(',') + ')'
+      return rival_list
+    }
 
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
@@ -412,6 +482,24 @@
       page_plugin_init()
       get_selector()
       init_tag()
+      get_rival_list()
+    }
+
+    var is_fixed = false
+    window.onscroll = function (){
+      if(self.pageYOffset > 50){
+        if (!is_fixed) {
+          $('#top').css('position', 'fixed')
+          $('#top').css('top', '0')
+          is_fixed = true
+        }else{
+          
+        }
+      }else if(is_fixed){
+        $('#top').css('position', 'absolute')
+        $('#top').css('top', '50')
+        is_fixed = false
+      }
     }
   </script>
   <style type="text/css">
@@ -419,11 +507,14 @@
       background: #f2f2f2;
     }
     #top{
-      position: sticky;
+      position: absolute;
       background: #f2f2f2;
       box-shadow: 0px 1px 1px #000000;
       width: 100%;
-      top: 0px;
+      top: 50px;
+    }
+    #rival_content{
+      margin: 20px;
     }
     .query_tag{
       border: 1px solid #f2f2f2;
@@ -446,9 +537,6 @@
       display: ;
       text-align: center;
     }
-    #nav {
-      visibility: ;
-    }
     #query_button{
       margin: 5px
     }
@@ -465,6 +553,27 @@
       border: 1px solid;
       padding: 10px
     }
+
+    #rival_content{
+
+    }
+    .rival_title input{
+      margin: 3px;
+    }
+    .rival_title input[type=checkbox]{
+    }
+    .rival_list{
+
+    }
+    .rival_list span{
+      height: 24px;
+      display: inline-block;
+      margin-right: 13px;
+    }
+    .rival_list input{
+      margin: 3px;
+    }
+
     #ads_detail{
       width:  60%;
       float: right;
@@ -536,6 +645,7 @@
     }
 
     #ads_table{
+      margin-top: 115px;
     }
 
     /* page cell css */
