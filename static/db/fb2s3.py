@@ -58,7 +58,7 @@ def get_image_via_http(url, do = True):
 		elif do:
 			get_image_via_http(url, do = False)
 		else:
-			print_error_log('to short ' + result)
+			print_error_log('too short ' + 'url: ' + url + '  ' + result)
 			return False
 
 def push_to_s3(s3, url):
