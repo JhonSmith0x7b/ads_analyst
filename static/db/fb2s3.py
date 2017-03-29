@@ -3,6 +3,8 @@
 import boto3, hashlib, urllib, urllib2, threading, sys, MySQLdb, time, sqlite3
 sys.path.append('/home/wangxin/www/ads_analyst/')
 sys.path.append('/Users/jhonsmith/develop/git/ads_analyst')
+reload(sys)  
+sys.setdefaultencoding('utf8')
 from hola_ads import utils, common
 
 counter = 0 
