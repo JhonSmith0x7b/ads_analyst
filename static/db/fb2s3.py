@@ -75,7 +75,7 @@ def push_to_s3(s3, url):
 	data = get_image_via_http(url)
 	if data:
 		try:
-			s3.Bucket('imgcn.dataverse.cn').put_object(
+			s3.Bucket('cnimg.dataverse.cn').put_object(
 				Key = (common.get_s3_uri(original_url)), 
 				Body = data, ACL = 'public-read', ContentType = 'image/jpeg')
 			sediment_to_sqlite(original_url, md5.hexdigest())
