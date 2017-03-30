@@ -359,11 +359,16 @@
         },
         dataType : 'json',
         success : function(data){
+          if(data == ''){
+            alert('没有更多数据!')
+            page_loaded()
+            return
+          }
           PAGE = page
           $('#current_page').html(PAGE)
           if(tail_is_loading){
             append_data_to_ad_list(data)
-            tail_is_loading = false
+            page_loaded()
           }else{
             exprot_data_to_ad_list(data)
             $('#current_page').html(page)
@@ -563,9 +568,13 @@
     function page_loaded(){
       if(tail_is_loading){
         $('#tail_loading_img').css('display', 'none')
+        is_load = false
+        tail_is_loading = false
       }else{
         $('#ads_table').css('opacity', 1)
         $('#loading_img').css('display', 'none')
+        is_load = false
+        tail_is_loading = false
       }
     }
 
