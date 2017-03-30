@@ -16,7 +16,7 @@
   <body>
     {% include 'hola_ads/head.htm' %}
 
-    <div id= 'top'>
+    <div id= 'top' onmouseover="top_onmouseover()" onmouseout="top_onmouseout()">
       <div id = 'select_area'>
         <select class="selectpicker"  id = 'adtype_selector' data-size="20" title = "Type" onchange = 'refresh()'>
         </select>
@@ -41,24 +41,27 @@
         <span  class = "query_tag" value = "{{package_name}}" id = 'package_name_input' onclick = "tag_remove(this);">{{package_name}}</span>
         <span  class = "query_tag" value = "{{dt_start}}" id = 'dt_start_input' onclick = "tag_remove(this);">{{dt_start}}</span>
         <span  class = "query_tag" value = "{{dt_end}}" id = 'dt_end_input' onclick = "tag_remove(this);">{{dt_end}}</span>
-        <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal">
+        <button type="button" id = 'query_button' class="btn btn-primary btn-sm" data-toggle="modal">
           Query
         </button>
         <div id="ads_page"
             style="">
-          <ul class="pagination">
-                  <li><a href="javascript:prev();">&lt;&lt;</a></li>
-                  <li><a id="current_page">1</a></li>
-                  <li><a href="javascript:next();">&gt;&gt;</a></li>
-                  <li>&nbsp;</li>
-                  <li class="dropdown">
-                    <select id = 'ads_page_selector' class="selectpicker" data-style="btn-info"
-                          data-width="80px" data-size="10" data-title="跳页"
-                          onChange="changepage_via_select()">
-                      <option>#</option>
-                    </select>
-                  </li>
-          </ul>
+            <table>
+              <tr>
+                <td><a href="javascript:prev();">&lt;&lt;</a></td>
+                <td>&nbsp;</td>
+                <td><span id="current_page">1</span></td>
+                <td>&nbsp;</td>
+                <td><a href="javascript:next();">&gt;&gt;</a></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td><select id = 'ads_page_selector' class="selectpicker" data-style="btn-info btn-sm"
+                    data-width="80px" data-size="10" data-title="跳页"
+                    onChange="changepage_via_select()">
+                <option>#</option>
+              </select></td>
+              </tr>
+            </table>
         </div>
         <button type="button" id = 'clear_button'  style = "display: none;" class="btn btn-danger btn-g" data-toggle="modal">
           Clear
@@ -585,6 +588,22 @@
 
     }
 
+    function top_onmouseover(){
+      if(is_fixed){
+        $('#top').css('top', '0')
+      }else{
+        $('#top').css('top', '50')
+      }
+    }
+
+    function top_onmouseout(){
+      if(is_fixed){
+        $('#top').css('top', '-50')
+      }else{
+
+      }
+    }
+
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
       data = {{ data|tojson }}
@@ -604,7 +623,7 @@
       if(self.pageYOffset > 50){
         if (!is_fixed) {
           $('#top').css('position', 'fixed')
-          $('#top').css('top', '0')
+          $('#top').css('top', '-50')
           is_fixed = true
         }else{
           
@@ -654,7 +673,6 @@
       display: ;
     }
     #select_input{
-      padding: 10px;
       display: ;
       text-align: center;
     }
@@ -766,8 +784,9 @@
       z-index: 9998; 
       right: 20%; 
       display: */
+      margin-right: 50px;
     }
-    #ads_page select{
+    #ads_page ul{
 
     }
     .me_date_picker{
