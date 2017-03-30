@@ -44,6 +44,22 @@
         <button type="button" id = 'query_button' class="btn btn-primary btn-g" data-toggle="modal">
           Query
         </button>
+        <div id="ads_page"
+            style="">
+          <ul class="pagination">
+                  <li><a href="javascript:prev();">&lt;&lt;</a></li>
+                  <li><a id="current_page">1</a></li>
+                  <li><a href="javascript:next();">&gt;&gt;</a></li>
+                  <li>&nbsp;</li>
+                  <li class="dropdown">
+                    <select id = 'ads_page_selector' class="selectpicker" data-style="btn-info"
+                          data-width="80px" data-size="10" data-title="跳页"
+                          onChange="changepage_via_select()">
+                      <option>#</option>
+                    </select>
+                  </li>
+          </ul>
+        </div>
         <button type="button" id = 'clear_button'  style = "display: none;" class="btn btn-danger btn-g" data-toggle="modal">
           Clear
         </button>
@@ -55,7 +71,7 @@
       </table>
     </div>
     <div id = 'ads_table'></div>
-    <div id="ads_page"
+<!--     <div id="ads_page"
         style="position: fixed; bottom: 1%; z-index: 9998; right: 20%; display: ;">
       <ul class="pagination">
               <li><a href="javascript:prev();">&lt;&lt;</a></li>
@@ -70,28 +86,29 @@
                 </select>
               </li>
       </ul>
-    </div>
-
+    </div> -->
+    <img id = "loading_img" src = "static/pic/loading.gif"/>
+    <div id = "tail_loading_img"><img src = "static/pic/loading.gif"/></div>
     {% include 'hola_ads/foot.htm' %}
 
   </body>
   <script type="text/javascript">
-    window.OFFSET = 15
+    window.OFFSET = 30
     function get_selector(){
       $.ajax({
-      url : "/pyanalyst/pyquery",
-      method : 'post',
-      data : {
-        'typical' : 'get_selector'
-      },
-      dataType : 'json',
-      success : function(data){
-        export_to_dropdown(data);
-      },
-      error : function(err){
-        alert(err);
-      }
-    });
+        url : "/pyanalyst/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'get_selector'
+        },
+        dataType : 'json',
+        success : function(data){
+          export_to_dropdown(data)
+        },
+        error : function(err){
+          console.log(err)
+        }
+      })
     }
     function export_to_dropdown(data){
       var results = eval(data);
@@ -159,8 +176,15 @@
     }
 
     function exprot_data_to_ad_list(data){
+      $('#ads_table').html(get_ad_list_str(data))
+    }
+
+    function append_data_to_ad_list(data){
+      $('#ads_table').append(get_ad_list_str(data))
+    }
+
+    function get_ad_list_str(data){
       var ads = eval(data);
-      $('#ads_table').html('');
       var page_cell = ''
       for(var index in ads){
         var cell = '<div class = "ad_cell">'
@@ -204,7 +228,7 @@
         + '<table class = "ad_cell_buttons">'
         + '<tr>'
         + '<td>' + '<a target = "_blank" href = "/pyanalyst/cat_image?img_src=' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + '</td>'
-        + '<td>' + '<a target = "_blank" href = "' + ads[index][6] + '&w=1200&h=627' + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
+        + '<td>' + '<a target = "_blank" href = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '&w=1200&h=627' + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
         + '<td>' + '<a  download = "projectAIVA" href = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' + '</td>'
         + '</tr>'
         + '</table>'
@@ -212,21 +236,26 @@
         + '</div>'
         page_cell += cell
       }
-      $('#ads_table').html(page_cell)
+      return page_cell
     }
-
+    var PAGE = 1
     function page_plugin_init(data){
       var offset = OFFSET
+      var adtype = $('#adtype_input').attr('value')
+      var geo = $('#geo_input').attr('value')
+      var dt_start = $('#dt_start_input').attr('value')
+      var dt_end = $('#dt_end_input').attr('value')
+      var package_name = $('#package_name_input').attr('value')
       $.ajax({
         url : "/pyanalyst/pyquery",
         method : 'post',
         data : {
           'typical' : 'query_page_via_type_geo_date',
-          'adtype' : $('#adtype_input').val(),
-          'geo' : $('#geo_input').val(),
-          'dt_start' : $('#dt_start_input').val(),
-          'dt_end' : $('#dt_end_input').val(),
-          'package_name' : $('#package_name_input').val(),
+          'adtype' : adtype,
+          'geo' : geo,
+          'dt_start' : dt_start,
+          'dt_end' : dt_end,
+          'package_name' : package_name,
           'offset' : offset,
           'rival_list' : '{{ rival_list| safe }}'
         },
@@ -244,12 +273,16 @@
           selector.selectpicker('refresh')
         },
         error : function(err){
-          alert(err);
+          console.log(err);
         }
       });
       var page = '{{page}}'
       try{
+        if(page == ''){
+          page = 1
+        }
         page = parseInt(page)
+        PAGE = page
       }catch(exception){
         $('#current_page').html('1')
         return
@@ -267,7 +300,7 @@
     }
 
     function prev(){
-      var current_page = $('#current_page').html()
+      var current_page = PAGE
       try{
         current_page = parseInt(current_page)
       }catch(exception){
@@ -280,7 +313,7 @@
     }
 
     function next(){
-      var current_page = $('#current_page').html()
+      var current_page = PAGE
       try{
         current_page = parseInt(current_page)
       }catch(exception){
@@ -289,19 +322,65 @@
       changepage(current_page + 1)
     }
 
+    var is_load = false
     function changepage(page){
-      var href_str = '/pyanalyst?doquery=hai';
-      var adtype = $('#adtype_input').val()
-      var geo = $('#geo_input').val()
-      var dt_start = $('#dt_start_input').val()
-      var dt_end = $('#dt_end_input').val()
-      var package_name = $('#package_name_input').val()
+      if(is_load && tail_is_loading)return
+      var href_str = '/pyanalyst?doquery=hai'
+      var adtype = $('#adtype_input').attr('value')
+      var geo = $('#geo_input').attr('value')
+      var dt_start = $('#dt_start_input').attr('value')
+      var dt_end = $('#dt_end_input').attr('value')
+      var package_name = $('#package_name_input').attr('value')
       var page = page + ''
       var offset = OFFSET
       var rival_list = '{{ rival_list | safe }}'
+      /*
       href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
       + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
       window.location.href = href_str
+      */
+      if(!tail_is_loading){
+        is_load = true
+      }
+      on_page_load()
+      $.ajax({
+        url : "/pyanalyst/pyquery",
+        method : 'post',
+        data : {
+          'typical' : 'ads_list',
+          'adtype' : adtype,
+          'geo' : geo,
+          'dt_start' : dt_start,
+          'dt_end' : dt_end,
+          'package_name' : package_name,
+          'page' : page,
+          'offset' : offset,
+          'rival_list' : rival_list
+        },
+        dataType : 'json',
+        success : function(data){
+          PAGE = page
+          $('#current_page').html(PAGE)
+          if(tail_is_loading){
+            append_data_to_ad_list(data)
+            tail_is_loading = false
+          }else{
+            exprot_data_to_ad_list(data)
+            $('#current_page').html(page)
+            is_load = false
+            page_loaded()
+          }
+        },
+        error : function(err){
+          console.log(err)
+          if(tail_is_loading){
+            tail_is_loading = false
+          }else{
+            is_load = false
+            page_loaded()
+          }
+        }
+      })
     }
 
     function query_via_package(pkg){
@@ -423,7 +502,7 @@
           export_to_rival_content(eval(data))
         },
         error : function(err){
-          alert(err.status)
+          console.log(err.status)
         }
       })
     }
@@ -472,6 +551,32 @@
       return rival_list
     }
 
+    function on_page_load(){
+      if(tail_is_loading){
+        $('#tail_loading_img').css('display', 'block')
+      }else{
+        $('#ads_table').css('opacity', 0.5)
+        $('#loading_img').css('display', 'block')
+      }
+    }
+
+    function page_loaded(){
+      if(tail_is_loading){
+        $('#tail_loading_img').css('display', 'none')
+      }else{
+        $('#ads_table').css('opacity', 1)
+        $('#loading_img').css('display', 'none')
+      }
+    }
+
+    function tail_page_load(){
+
+    }
+
+    function tail_page_loaded(){
+
+    }
+
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
       data = {{ data|tojson }}
@@ -486,6 +591,7 @@
     }
 
     var is_fixed = false
+    var tail_is_loading = false
     window.onscroll = function (){
       if(self.pageYOffset > 50){
         if (!is_fixed) {
@@ -500,6 +606,12 @@
         $('#top').css('top', '50')
         is_fixed = false
       }
+      if(self.pageYOffset > $('#ads_table').height() - 400){
+        if(!tail_is_loading){
+          tail_is_loading = true
+          next()
+        };
+      }
     }
   </script>
   <style type="text/css">
@@ -512,6 +624,7 @@
       box-shadow: 0px 1px 1px #000000;
       width: 100%;
       top: 50px;
+      z-index: 9998;
     }
     #rival_content{
       margin: 20px;
@@ -605,6 +718,13 @@
       font-size: 15px;
       margin: 5px;
     }
+    .ads_content:after{
+      display:block;
+      content:'clear';
+      clear:both;
+      visibility:hidden;
+      line-height: 0;
+    }
     .ads_content tr{
       border-bottom: 1px groove;
     }
@@ -631,11 +751,13 @@
     }
 
     #ads_page{
-      position: fixed; 
+      display: inline-block;
+      float:right;
+/*      position: fixed; 
       bottom: 1%; 
       z-index: 9998; 
       right: 20%; 
-      display: 
+      display: */
     }
     #ads_page select{
 
@@ -645,19 +767,26 @@
     }
 
     #ads_table{
-      margin-top: 115px;
+      margin-top: 155px;
+    }
+    #ads_table:after{
+      display:block;
+      content:'clear';
+      clear:both;
+      visibility:hidden;
+      line-height: 0;
     }
 
     /* page cell css */
     .ad_cell{
-    background: #FAFAFA;
-    width: 360px;
-    padding: 10px;
-    box-shadow: 0px 2px 2px #888888;
-    font-family: Serif;
-    margin: 10px;
-    height: 430px;
-    float: left;
+      background: #FAFAFA;
+      width: 360px;
+      padding: 10px;
+      box-shadow: 0px 2px 2px #888888;
+      font-family: Serif;
+      margin: 10px;
+      height: 430px;
+      float: left;
     }
     .ad_cell_head{
       height: 60px;
@@ -755,6 +884,26 @@
       height: 24px;
       margin-left: 10px;
       margin-right: 10px;
+    }
+
+    #loading_img{
+      position: fixed;
+      top: 45%;
+      left: 45%;
+      width: 100px;
+      height: 100px;
+      display: none;
+      z-index: 9997;
+    }
+
+    #tail_loading_img{
+      width: 100%;
+      display: none;
+      text-align: center;
+    }
+    #tail_loading_img img{
+      width: 100px;
+      height: 100px;
     }
 
   /* ad cell css over */
