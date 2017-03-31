@@ -15,7 +15,7 @@
   </head>
   <body>
     {% include 'hola_ads/head.htm' %}
-
+    <div id = 'summit'></div>
     <div id= 'top' onmouseover="top_onmouseover()" onmouseout="top_onmouseout()">
       <div id = 'select_area'>
         <select class="selectpicker"  id = 'adtype_selector' data-size="20" title = "Type" onchange = 'refresh()'>
@@ -35,6 +35,7 @@
       </div>
 
       <div id = 'select_input'>
+        <span id = "search_count"></span>
         搜索条件: 
         <span  class = "query_tag" value = "{{adtype}}" id = 'adtype_input' onclick = "tag_remove(this);">{{adtype}}</span>
         <span  class = "query_tag" value = "{{geo}}" id = 'geo_input' onclick = "tag_remove(this);">{{geo}}</span>
@@ -96,23 +97,45 @@
 
   </body>
   <script type="text/javascript">
-    window.OFFSET = 30
-    function get_selector(){
+    window.OFFSET = 30            
+    var is_load = false           //plugin page change
+    var PAGE = 1                  //current page
+    var BE_PAGE = 1               //will change is success
+    var is_fixed = false          // #top is fixed
+    var tail_is_loading = false   //change page via auto load
+    
+    function ajax(url, method, data, callback){
       $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
-          'typical' : 'get_selector'
+        url: url,
+        method: method,
+        data: data,
+        dataType: 'json',
+        success: function(d){
+          callback(d, '')
         },
-        dataType : 'json',
-        success : function(data){
-          export_to_dropdown(data)
-        },
-        error : function(err){
-          console.log(err)
+        error: function(e){
+          callback(e, e.status)
         }
       })
     }
+
+    function get_selector(){
+      var url = '/pyanalyst/pyquery'
+      var method = 'post'
+      var data = {
+          'typical' : 'get_selector'
+        }
+      ajax(url, method, data, get_selector_callback)
+    }
+
+    function get_selector_callback(data, error){
+      if(error != ''){
+        console.log('get selector error ' + error)
+      }else{
+        export_to_dropdown(data)
+      }
+    }
+
     function export_to_dropdown(data){
       var results = eval(data);
       var adtype_results = eval(results[0]);
@@ -130,6 +153,7 @@
       $('#adtype_selector').selectpicker('refresh');
       $('#geo_selector').selectpicker('refresh');
     }
+    //query button
     document.getElementById('query_button').onclick = function(){
       var href_str = '/pyanalyst?doquery=hai';
       var adtype = $('#adtype_input').attr('value')
@@ -145,6 +169,7 @@
       window.location.href = href_str;
     }
 
+    //refresh local sign
     function refresh(){
       if($('#adtype_selector').val() != ''){
         $('#adtype_input').attr('value', $('#adtype_selector').val())
@@ -179,6 +204,7 @@
     }
 
     function exprot_data_to_ad_list(data){
+      window.location.href = '#summit'
       $('#ads_table').html(get_ad_list_str(data))
     }
 
@@ -241,44 +267,26 @@
       }
       return page_cell
     }
-    var PAGE = 1
+    
     function page_plugin_init(data){
-      var offset = OFFSET
       var adtype = $('#adtype_input').attr('value')
       var geo = $('#geo_input').attr('value')
       var dt_start = $('#dt_start_input').attr('value')
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
-      $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
+      var url = '/pyanalyst/pyquery'
+      var method = 'post'
+      var data  = {
           'typical' : 'query_page_via_type_geo_date',
           'adtype' : adtype,
           'geo' : geo,
           'dt_start' : dt_start,
           'dt_end' : dt_end,
           'package_name' : package_name,
-          'offset' : offset,
+          'offset' : OFFSET,
           'rival_list' : '{{ rival_list| safe }}'
-        },
-        dataType : 'json',
-        success : function(data){
-          var count = eval(data)[0][0];
-          //refresh plugin
-          var selector = $('#ads_page_selector')
-          var options_str = ''
-          for(var i = Math.ceil(count / offset); i > 0; i --){
-            options_str +=
-            '<option>' + i + '</option>'
-          }
-          selector.html(options_str)
-          selector.selectpicker('refresh')
-        },
-        error : function(err){
-          console.log(err);
         }
-      });
+      ajax(url, method, data, page_plugin_init_callback)
       var page = '{{page}}'
       try{
         if(page == ''){
@@ -295,6 +303,24 @@
         return
       }
       $('#current_page').html('1')
+    }
+
+    function page_plugin_init_callback(data, error){
+      if(error != ''){
+        console.log('init plugin error ' + error);
+      }else{
+        var count = eval(data)[0][0];
+        $('#search_count').html('搜索结果: ' + count + '')
+        //refresh plugin
+        var selector = $('#ads_page_selector')
+        var options_str = ''
+        for(var i = Math.ceil(count / OFFSET); i > 0; i --){
+          options_str +=
+          '<option>' + i + '</option>'
+        }
+        selector.html(options_str)
+        selector.selectpicker('refresh')
+      }
     }
 
     function changepage_via_select(){
@@ -325,69 +351,64 @@
       changepage(current_page + 1)
     }
 
-    var is_load = false
     function changepage(page){
-      if(is_load && tail_is_loading)return
-      var href_str = '/pyanalyst?doquery=hai'
+      if(is_load)return
       var adtype = $('#adtype_input').attr('value')
       var geo = $('#geo_input').attr('value')
       var dt_start = $('#dt_start_input').attr('value')
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
-      var page = page + ''
+      BE_PAGE = page + ''
       var offset = OFFSET
       var rival_list = '{{ rival_list | safe }}'
       /*
+      var href_str = '/pyanalyst?doquery=hai'
       href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
       + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
       window.location.href = href_str
       */
-      if(!tail_is_loading){
-        is_load = true
-      }
       on_page_load()
-      $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
+      var url = '/pyanalyst/pyquery'
+      var method = 'post'
+      var data = {
           'typical' : 'ads_list',
           'adtype' : adtype,
           'geo' : geo,
           'dt_start' : dt_start,
           'dt_end' : dt_end,
           'package_name' : package_name,
-          'page' : page,
+          'page' : BE_PAGE,
           'offset' : offset,
           'rival_list' : rival_list
-        },
-        dataType : 'json',
-        success : function(data){
-          if(data == ''){
-            page_loaded()
-            return
-          }
-          PAGE = page
-          $('#current_page').html(PAGE)
-          if(tail_is_loading){
-            append_data_to_ad_list(data)
-            page_loaded()
-          }else{
-            exprot_data_to_ad_list(data)
-            $('#current_page').html(page)
-            is_load = false
-            page_loaded()
-          }
-        },
-        error : function(err){
-          console.log(err)
-          if(tail_is_loading){
-            tail_is_loading = false
-          }else{
-            is_load = false
-            page_loaded()
-          }
         }
-      })
+      ajax(url, method, data, change_page_callback)
+    }
+
+    function change_page_callback(data, error){
+      if(error != ''){
+        console.log(err)
+        if(tail_is_loading){
+          tail_is_loading = false
+        }else{
+          is_load = false
+          page_loaded()
+        }
+      }else{
+        if(data == ''){
+          page_loaded()
+          return
+        }
+        PAGE = BE_PAGE
+        $('#current_page').html(PAGE)
+        if(tail_is_loading){
+          append_data_to_ad_list(data)
+        }else{
+          exprot_data_to_ad_list(data)
+          $('#current_page').html(PAGE)
+          is_load = false
+        }
+        page_loaded()
+      }
     }
 
     function query_via_package(pkg){
@@ -498,20 +519,20 @@
     }
 
     function get_rival_list(){
-      $.ajax({
-        url : "/pyanalyst/pyquery",
-        method : 'post',
-        data : {
+      var url = '/pyanalyst/pyquery'
+      var method = 'post'
+      var data = {
           'typical' : 'get_rival_list'
-        },
-        dataType : 'json',
-        success : function(data){
-          export_to_rival_content(eval(data))
-        },
-        error : function(err){
-          console.log(err.status)
         }
-      })
+      ajax(url, method, data, get_rival_list_callback)
+    }
+
+    function get_rival_list_callback(data, error){
+      if(error != ''){
+        console.log(err.status)
+      }else{
+        export_to_rival_content(eval(data))
+      }
     }
 
     function export_to_rival_content(data){
@@ -559,6 +580,7 @@
     }
 
     function on_page_load(){
+      is_load = true
       if(tail_is_loading){
         $('#tail_loading_img').css('display', 'block')
       }else{
@@ -570,22 +592,12 @@
     function page_loaded(){
       if(tail_is_loading){
         $('#tail_loading_img').css('display', 'none')
-        is_load = false
         tail_is_loading = false
       }else{
         $('#ads_table').css('opacity', 1)
         $('#loading_img').css('display', 'none')
-        is_load = false
-        tail_is_loading = false
       }
-    }
-
-    function tail_page_load(){
-
-    }
-
-    function tail_page_loaded(){
-
+      is_load = false
     }
 
     function top_onmouseover(){
@@ -617,8 +629,6 @@
       get_rival_list()
     }
 
-    var is_fixed = false
-    var tail_is_loading = false
     window.onscroll = function (){
       if(self.pageYOffset > 50){
         if (!is_fixed) {
@@ -713,6 +723,10 @@
       margin: 3px;
     }
 
+    #search_count{
+      margin-right: 50px;
+    }
+
     #ads_detail{
       width:  60%;
       float: right;
@@ -794,7 +808,7 @@
     }
 
     #ads_table{
-      margin-top: 155px;
+      margin-top: 105px;
     }
     #ads_table:after{
       display:block;
