@@ -26,7 +26,7 @@ class ads_analyst:
 			
 	def query_via_parameter(self, typical, request_id = '', icon = '', image = '', 
 		package_name = '', adtype = '', geo = '', dt_start = '', 
-		dt_end = '', page = '', offset = '', rival_list = ''):
+		dt_end = '', page = '', offset = '', rival_list = '', sourceapp = ''):
 		db_tool = self.get_db()
 		sql_page = page if page != '' else '1'
 		sql_offset = offset if offset != '' else '10'
@@ -53,6 +53,8 @@ class ads_analyst:
 				sql += ' AND geo = "%s" ' % geo
 			if rival_list != '':
 				sql += ' AND package_name in %s' % rival_list
+			if sourceapp != '':
+				sql += ' AND app_name = "%s" ' % sourceapp
 			sql += ' GROUP BY image, geo '
 			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
@@ -91,6 +93,8 @@ class ads_analyst:
 				sql += ' AND dt <= "%s"' % (dt_end)
 			if rival_list != '':
 				sql += ' AND package_name in %s' % rival_list
+			if sourceapp != '':
+				sql += ' AND app_name = "%s"' % sourceapp
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		if typical == 'get_selector':
@@ -98,7 +102,8 @@ class ads_analyst:
 				ensure_ascii = False)
 			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo from ads GROUP BY geo order by count(geo) DESC'), 
 				ensure_ascii = False)
-			result_list = [type_result, geo_reuslt]
+			sourceapp_result = json.dumps(db_tool.query_by_sql('select app_name from ads group by app_name order by count(app_name) DESC'))
+			result_list = [type_result, geo_reuslt, sourceapp_result]
 			return json.dumps(result_list, ensure_ascii = False)
 		if typical == 'category_test':
 			sql = """

@@ -27,6 +27,8 @@
         TO
         <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}" onchange="refresh();">
       Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+        <select class="selectpicker" id = 'sourceapp_selector' data-live-search="false" data-size="5" title = " Source App" onchange = 'refresh()'>
+        </select>
         <button id = "rival_button" type="button" class="btn btn-info" data-toggle="collapse" data-target="#rival_content">
         竞品查询
         </button>
@@ -42,6 +44,7 @@
         <span  class = "query_tag" value = "{{package_name}}" id = 'package_name_input' onclick = "tag_remove(this);">{{package_name}}</span>
         <span  class = "query_tag" value = "{{dt_start}}" id = 'dt_start_input' onclick = "tag_remove(this);">{{dt_start}}</span>
         <span  class = "query_tag" value = "{{dt_end}}" id = 'dt_end_input' onclick = "tag_remove(this);">{{dt_end}}</span>
+        <span  class = "query_tag" value = "{{sourceapp}}" id = 'sourceapp_input' onclick = "tag_remove(this);">{{sourceapp}}</span>
         <button type="button" id = 'query_button' class="btn btn-primary btn-sm" data-toggle="modal">
           Query
         </button>
@@ -140,18 +143,26 @@
       var results = eval(data);
       var adtype_results = eval(results[0]);
       var geo_results = eval(results[1]);
+      var sourceapp_reuslts = eval(results[2])
       var adtype_results_str = ''
       for(var index in adtype_results){
-        adtype_results_str += '<option>' + adtype_results[index][0] + '</option>';
+        adtype_results_str += '<option>' + adtype_results[index][0] + '</option>'
       }
-      $('#adtype_selector').html(adtype_results_str);
-      var geo_results_str = '';
+      $('#adtype_selector').html(adtype_results_str)
+      var geo_results_str = ''
       for(var index in geo_results){
-        geo_results_str += '<option>' + geo_results[index][0] + '</option>';
+        geo_results_str += '<option>' + geo_results[index][0] + '</option>'
       }
-      $('#geo_selector').html(geo_results_str);
-      $('#adtype_selector').selectpicker('refresh');
-      $('#geo_selector').selectpicker('refresh');
+      var sourceapp_results_str = ''
+      $('#geo_selector').html(geo_results_str)
+      for(var index in sourceapp_reuslts){
+        sourceapp_results_str += '<option>' + sourceapp_reuslts[index][0] + '</options>'
+      }
+      $('#sourceapp_selector').html(sourceapp_results_str)
+
+      $('#adtype_selector').selectpicker('refresh')
+      $('#geo_selector').selectpicker('refresh')
+      $('#sourceapp_selector').selectpicker('refresh')
     }
     //query button
     document.getElementById('query_button').onclick = function(){
@@ -161,11 +172,14 @@
       var dt_start = $('#dt_start_input').attr('value')
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
+      var sourceapp = $('#sourceapp_input').attr('value')
       var page = ''
       var rival_list = get_rival_list_str()
       var offset = OFFSET
       href_str += '&adtype=' + adtype + '&package_name=' + package_name + '&geo=' + geo + '&dt_start=' + dt_start
-      + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
+      + '&dt_end=' + dt_end + '&page=' + page + '&offset=' 
+      + offset + '&rival_list=' + rival_list
+      + '&sourceapp=' + sourceapp
       window.location.href = href_str;
     }
 
@@ -201,6 +215,13 @@
         $('#dt_end_input').css('display', 'inline')
         $('#dt_end_input').html($('#end_datepicker').val())
       }
+
+      if($('#sourceapp_selector').val() != ''){
+        $('#sourceapp_input').attr('value', $('#sourceapp_selector').val())
+        $('#sourceapp_input').css('display', 'inline')
+        $('#sourceapp_input').html($('#sourceapp_selector').val())
+      }
+
     }
 
     function exprot_data_to_ad_list(data){
@@ -257,7 +278,7 @@
         + '<table class = "ad_cell_buttons">'
         + '<tr>'
         + '<td>' + '<a target = "_blank" href = "/pyanalyst/cat_image?img_src=' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + '</td>'
-        + '<td>' + '<a target = "_blank" href = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '&w=1200&h=627' + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
+        + '<td>' + '<a target = "_blank" href = "' + (ads[index][20] == '' ? (ads[index][6] + '&w=1200&h=627') : ads[index][20]) + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
         + '<td>' + '<a  download = "projectAIVA" href = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' + '</td>'
         + '</tr>'
         + '</table>'
@@ -274,6 +295,7 @@
       var dt_start = $('#dt_start_input').attr('value')
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
+      var sourceapp = $('#sourceapp_input').attr('value')
       var url = '/pyanalyst/pyquery'
       var method = 'post'
       var data  = {
@@ -284,7 +306,8 @@
           'dt_end' : dt_end,
           'package_name' : package_name,
           'offset' : OFFSET,
-          'rival_list' : '{{ rival_list| safe }}'
+          'rival_list' : '{{ rival_list| safe }}',
+          'sourceapp' : sourceapp
         }
       ajax(url, method, data, page_plugin_init_callback)
       var page = '{{page}}'
@@ -361,6 +384,7 @@
       BE_PAGE = page + ''
       var offset = OFFSET
       var rival_list = '{{ rival_list | safe }}'
+      var sourceapp = $('#sourceapp_input').attr('value')
       /*
       var href_str = '/pyanalyst?doquery=hai'
       href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
@@ -379,7 +403,8 @@
           'package_name' : package_name,
           'page' : BE_PAGE,
           'offset' : offset,
-          'rival_list' : rival_list
+          'rival_list' : rival_list,
+          'sourceapp' : sourceapp
         }
       ajax(url, method, data, change_page_callback)
     }
@@ -479,6 +504,11 @@
           $('#' + element.id).attr('value', '')
           break
         }
+        case "sourceapp_input":{
+          $('#' + element.id).css('display', 'none')
+          $('#' + element.id).attr('value', '')
+          break
+        }
         default:{
 
         }
@@ -515,6 +545,12 @@
         $('#dt_end_input').css('display', 'none')
       }else{
         $('#dt_end_input').css('display', 'inline')
+      }
+      var sourceapp_tag = "{{sourceapp}}"
+      if (sourceapp_tag == ""){
+        $('#sourceapp_input').css('display', 'none')
+      }else{
+        $('#sourceapp_input').css('display', 'inline')
       }
     }
 
@@ -567,7 +603,7 @@
     }
 
     function get_rival_list_str(){
-      var checkboxes = $('#rival_content input[type=checkbox]').map(function(_,el){
+      var checkboxes = $('#rival_content input[type=checkbox]').map(function(_, el){
         if(el.checked){
           return '"' + $(el).val() + '"'
         }

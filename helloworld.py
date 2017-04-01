@@ -25,16 +25,17 @@ def ads_analysis():
 			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
 			page = request.args.get('page', ''), 
 			offset = request.args.get('offset', ''), image = request.args.get('image', ''), 
-			rival_list = request.args.get('rival_list', ''))
+			rival_list = request.args.get('rival_list', ''), sourceapp = request.args.get('sourceapp', ''))
 		query_time = time.time() - pre_time
 		return render_template('hola_ads/ads_analyst.htm', data = query_data.encode('utf-8'),
 			adtype = request.args.get('adtype', ''), geo = request.args.get('geo', ''), 
 			dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
 			page = request.args.get('page', ''), package_name = request.args.get('package_name', ''),
-			query_time = query_time, rival_list = urllib.unquote(request.args.get('rival_list', ''))), 
+			query_time = query_time, rival_list = request.args.get('rival_list', ''),
+			sourceapp = request.args.get('sourceapp', '')), 
 		200 , {'Content-Type':'text/html;charset=utf-8'}
 	return render_template('hola_ads/ads_analyst.htm', data = 1, adtype = '', geo = '', 
-		dt_start = '', dt_end = '', page = '', package_name = '', rival_list = '')
+		dt_start = '', dt_end = '', page = '', package_name = '', rival_list = '', sourceapp = '')
 	pass
 
 @app.route('/pyanalyst/pyquery', methods = ['post'])
@@ -47,7 +48,7 @@ def query_route():
 		dt_start = request.form.get('dt_start', ''), dt_end = request.form.get('dt_end', ''), 
 		package_name = request.form.get('package_name', ''),
 		page = request.form.get('page', ''), offset = request.form.get('offset', ''),
-		rival_list = request.form.get('rival_list', ''))
+		rival_list = request.form.get('rival_list', ''), sourceapp = request.form.get('sourceapp', ''))
 	return json_data, 200, {'Content-Type':'text/json;charset=utf-8'}
 
 @app.route('/pyanalyst/cat_image', methods = ['get'])
