@@ -78,22 +78,6 @@
       </table>
     </div>
     <div id = 'ads_table'></div>
-<!--     <div id="ads_page"
-        style="position: fixed; bottom: 1%; z-index: 9998; right: 20%; display: ;">
-      <ul class="pagination">
-              <li><a href="javascript:prev();">&lt;&lt;</a></li>
-              <li><a id="current_page">1</a></li>
-              <li><a href="javascript:next();">&gt;&gt;</a></li>
-              <li>&nbsp;</li>
-              <li class="dropup">
-                <select id = 'ads_page_selector' class="selectpicker" data-style="btn-info"
-                      data-width="80px" data-size="5" data-title="跳页"
-                      onChange="changepage_via_select()">
-                  <option>#</option>
-                </select>
-              </li>
-      </ul>
-    </div> -->
     <img id = "loading_img" src = "static/pic/loading.gif"/>
     <div id = "tail_loading_img"><img src = "static/pic/loading.gif"/></div>
     {% include 'hola_ads/foot.htm' %}
@@ -135,15 +119,15 @@
       if(error != ''){
         console.log('get selector error ' + error)
       }else{
-        export_to_dropdown(data)
+        var results = eval(data);
+        var adtype_results = eval(results[0]);
+        var geo_results = eval(results[1]);
+        var sourceapp_reuslts = eval(results[2])
+        export_to_dropdown(adtype_results, geo_results, sourceapp_reuslts)
       }
     }
 
-    function export_to_dropdown(data){
-      var results = eval(data);
-      var adtype_results = eval(results[0]);
-      var geo_results = eval(results[1]);
-      var sourceapp_reuslts = eval(results[2])
+    function export_to_dropdown(adtype_results, geo_results, sourceapp_reuslts){
       var adtype_results_str = ''
       for(var index in adtype_results){
         adtype_results_str += '<option>' + adtype_results[index][0] + '</option>'
@@ -186,42 +170,36 @@
     //refresh local sign
     function refresh(){
       if($('#adtype_selector').val() != ''){
-        $('#adtype_input').attr('value', $('#adtype_selector').val())
-        $('#adtype_input').css('display', 'inline')
-        $('#adtype_input').html($('#adtype_selector').val())
+        refresh_via_id('adtype_selector', 'adtype_input')
       }
 
       if($('#geo_selector').val() != ''){
-        $('#geo_input').attr('value', $('#geo_selector').val())
-        $('#geo_input').css('display', 'inline')
-        $('#geo_input').html($('#geo_selector').val())
+        refresh_via_id('geo_selector', 'geo_input')
       }
 
       if($('#package_name_selector').val() != ''){
-        $('#package_name_input').attr('value', $('#package_name_selector').val())
-        $('#package_name_input').css('display', 'inline')
-        $('#package_name_input').html($('#package_name_selector').val())
+        refresh_via_id('package_name_selector', 'package_name_input')
       }
 
       if($('#start_datepicker').val() != ''){
-        $('#dt_start_input').attr('value', $('#start_datepicker').val())
-        $('#dt_start_input').css('display', 'inline')
-        $('#dt_start_input').html($('#start_datepicker').val())
+        refresh_via_id('start_datepicker', 'dt_start_input')
 
       }
 
       if($('#end_datepicker').val() != ''){
-        $('#dt_end_input').attr('value', $('#end_datepicker').val())
-        $('#dt_end_input').css('display', 'inline')
-        $('#dt_end_input').html($('#end_datepicker').val())
+        refresh_via_id('end_datepicker', 'dt_end_input')
       }
 
       if($('#sourceapp_selector').val() != ''){
-        $('#sourceapp_input').attr('value', $('#sourceapp_selector').val())
-        $('#sourceapp_input').css('display', 'inline')
-        $('#sourceapp_input').html($('#sourceapp_selector').val())
+        refresh_via_id('sourceapp_selector', 'sourceapp_input')
       }
 
+    }
+
+    function refresh_via_id(selector_id, input_id){
+      $('#' + input_id).attr('value', $('#' + selector_id).val())
+      $('#' + input_id).css('display', 'inline')
+      $('#' + input_id).html($('#' + selector_id).val())
     }
 
     function exprot_data_to_ad_list(data){
@@ -237,49 +215,61 @@
       var ads = eval(data);
       var page_cell = ''
       for(var index in ads){
+        var icon_src = ads[index][5]
+        var title = decodeURIComponent(ads[index][8]).replace(/\+/g, ' ').substring(0, 40)
+        var date = ads[index][15]
+        var content = decodeURIComponent(ads[index][11]).replace(/\+/g, ' ')
+        var image_src = (ads[index][20] == '' ? ads[index][6] : ads[index][20])
+        var social = decodeURIComponent(ads[index][7]).replace(/\+/g, ' ')
+        var button_str = decodeURIComponent(ads[index][9]).replace(/\+/g, ' ')
+        var duration = ads[index][17]
+        var heat = ads[index][18]
+        var geo = ads[index][16]
+        var category = ads[index][19]
+        var package = ads[index][14]
         var cell = '<div class = "ad_cell">'
         + '<div class = "ad_cell_head">'
         + '<table>'
         + '<tr>'
-        + '<td rowspan = "2"><img class = "ad_cell_icon" src = "' + ads[index][5] + '"></td>'
-        + '<td><p class = "ad_cell_title">' + decodeURIComponent(ads[index][8]).replace(/\+/g, ' ').substring(0, 40) + '</p></td>'
+        + '<td rowspan = "2"><img class = "ad_cell_icon" src = "' + icon_src + '"></td>'
+        + '<td><p class = "ad_cell_title">' + title + '</p></td>'
         + '</tr>'
         + '<tr>'
-        + '<td><p class = "ad_cell_date">' + ads[index][15] + '</p></td>'
+        + '<td><p class = "ad_cell_date">' + date + '</p></td>'
         + '</tr>'
         + '</table>'
         + '</div>'
         + '<div class = "ad_cell_body">'
         + '<table>'
-        + '<tr><p class = "ad_cell_content">' + decodeURIComponent(ads[index][11]).replace(/\+/g, ' ') + '</p></tr>'
-        + '<tr><img class = "ad_cell_image" src = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"/></tr>'
+        + '<tr><p class = "ad_cell_content">' + content + '</p></tr>'
+        + '<tr><img class = "ad_cell_image" src = "' + image_src + '"/></tr>'
         + '</table>'
         + '</div>'
         + '<div class = "ad_cell_feet">'
         + '<table>'
         + '<tr>'
-        + '<td class = "ad_cell_social">' + decodeURIComponent(ads[index][7]).replace(/\+/g, ' ') + '</td>'
-        + '<td class = "ad_cell_button"><button>' + decodeURIComponent(ads[index][9]).replace(/\+/g, ' ') + '</button></td>'
+        + '<td class = "ad_cell_social">' + social + '</td>'
+        + '<td class = "ad_cell_button"><button>' + button_str + '</button></td>'
         + '</tr>'
         + '</table>'
         + '</div>'
         + '<div class = "ad_cell_tail">'
         + '<table>'
         + '<tr>'
-        + '<td class = "ad_cell_duration"><img src = "static/pic/Duration.png"/> ' + ads[index][17] + 'd</td>'
-        + '<td class = "ad_cell_heat"><img src = "static/pic/heat.png"/> ' + ads[index][18] + '</td>'
-        + '<td class = "ad_cell_geo">' + ads[index][16] + '</td>'
-        + '<td class = "ad_cell_category">' + ads[index][19] + '</td>'
+        + '<td class = "ad_cell_duration"><img src = "static/pic/Duration.png"/> ' + duration + 'd</td>'
+        + '<td class = "ad_cell_heat"><img src = "static/pic/heat.png"/> ' + heat + '</td>'
+        + '<td class = "ad_cell_geo">' + geo + '</td>'
+        + '<td class = "ad_cell_category">' + category + '</td>'
         + '</tr>'
         + '<tr>'
-        + '<td colspan = "4" class = "ad_cell_pkg">Pkg: <a href = "javascript:query_via_package(\'' + ads[index][14] + '\');">' + ads[index][14] + '</a></td>'
+        + '<td colspan = "4" class = "ad_cell_pkg">Pkg: <a href = "javascript:query_via_package(\'' + package + '\');">' + package + '</a></td>'
         + '</tr>'
         + '</table>'
         + '<table class = "ad_cell_buttons">'
         + '<tr>'
-        + '<td>' + '<a target = "_blank" href = "/pyanalyst/cat_image?img_src=' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + '</td>'
-        + '<td>' + '<a target = "_blank" href = "' + (ads[index][20] == '' ? (ads[index][6] + '&w=1200&h=627') : ads[index][20]) + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
-        + '<td>' + '<a  download = "projectAIVA" href = "' + (ads[index][20] == '' ? ads[index][6] : ads[index][20]) + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' + '</td>'
+        + '<td>' + '<a target = "_blank" href = "/pyanalyst/cat_image?img_src=' + image_src + '"><input class = "img_button" type = "button" value = "查看图片"/></a>' + '</td>'
+        + '<td>' + '<a target = "_blank" href = "' + image_src + '"><input class = "img_button" type = "button" value = "查看大图"/></a>' + '</td>'
+        + '<td>' + '<a  download = "projectAIVA" href = "' + image_src + '"><input class = "img_button" type = "button" value = "下载图片"/></a>' + '</td>'
         + '</tr>'
         + '</table>'
         + '</div>'
@@ -289,7 +279,7 @@
       return page_cell
     }
     
-    function page_plugin_init(data){
+    function page_plugin_init(){
       var adtype = $('#adtype_input').attr('value')
       var geo = $('#geo_input').attr('value')
       var dt_start = $('#dt_start_input').attr('value')
@@ -385,12 +375,6 @@
       var offset = OFFSET
       var rival_list = '{{ rival_list | safe }}'
       var sourceapp = $('#sourceapp_input').attr('value')
-      /*
-      var href_str = '/pyanalyst?doquery=hai'
-      href_str += '&adtype=' + adtype + '&geo=' + geo + '&package_name=' + package_name + '&dt_start='
-      + dt_start + '&dt_end=' + dt_end + '&page=' + page + '&offset=' + offset + '&rival_list=' + rival_list
-      window.location.href = href_str
-      */
       on_page_load()
       var url = '/pyanalyst/pyquery'
       var method = 'post'
@@ -478,79 +462,30 @@
     }
 
     function tag_remove(element){
-      switch(element.id){
-        case "adtype_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        case "geo_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        case "package_name_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        case "dt_start_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        case "dt_end_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        case "sourceapp_input":{
-          $('#' + element.id).css('display', 'none')
-          $('#' + element.id).attr('value', '')
-          break
-        }
-        default:{
-
-        }
-      }
+      $('#' + element.id).css('display', 'none')
+      $('#' + element.id).attr('value', '')
     }
 
     function init_tag(){
       var type_tag = "{{adtype}}"
-      if (type_tag == ""){
-        $('#adtype_input').css('display', 'none')
-      }else{
-        $('#adtype_input').css('display', 'inline')
-      }
+      init_tag_via_id(type_tag, 'adtype_input')
       var geo_tag = "{{geo}}"
-      if (geo_tag == ""){
-        $('#geo_input').css('display', 'none')
-      }else{
-        $('#geo_input').css('display', 'inline')
-      }
+      init_tag_via_id(geo_tag, 'geo_input')
       var package_name_tag = "{{package_name}}"
-      if (package_name_tag == ""){
-        $('#package_name_input').css('display', 'none')
-      }else{
-        $('#package_name_input').css('display', 'inline')
-      }
+      init_tag_via_id(package_name_tag, 'package_name_input')
       var dt_start_tag = "{{dt_start}}"
-      if (dt_start_tag == ""){
-        $('#dt_start_input').css('display', 'none')
-      }else{
-        $('#dt_start_input').css('display', 'inline')
-      }
+      init_tag_via_id(dt_start_tag, 'dt_start_input')
       var dt_end_tag = "{{dt_end}}"
-      if (dt_end_tag == ""){
-        $('#dt_end_input').css('display', 'none')
-      }else{
-        $('#dt_end_input').css('display', 'inline')
-      }
+      init_tag_via_id(dt_end_tag, 'dt_end_input')
       var sourceapp_tag = "{{sourceapp}}"
-      if (sourceapp_tag == ""){
-        $('#sourceapp_input').css('display', 'none')
+      init_tag_via_id(sourceapp_tag, 'sourceapp_input')
+    }
+
+    function init_tag_via_id(tag, elid){
+      if (tag == ""){
+        $('#' + elid).css('display', 'none')
       }else{
-        $('#sourceapp_input').css('display', 'inline')
+        $('#' + elid).css('display', 'inline')
       }
     }
 
@@ -577,16 +512,19 @@
       for(var index in data){
         var id = data[index][0][2]
         var id_s = id + '_s'
-        var content = '<div class = "rival_title" id = ' + data[index][0][2] + '><label>' + data[index][0][2] + 
-        '<input type = "checkbox" value = "cool" onchange="rival_check(\'' + id + '\', \'' + id_s + '\')"/></label>' + '</div><div class = "rival_list" id = "' + id_s + '">'
+        var content = '<div class = "rival_title" id = ' + id + '><label>' + id + 
+        '<input type = "checkbox" value = "' + id + '" onchange="rival_check(\'' + id + '\', \'' + id_s + '\')"/></label>' + '</div><div class = "rival_list" id = "' + id_s + '">'
         for(var index1 in data[index]){
-          content += '<span><input value = "' + data[index][index1][1] + '" type = "checkbox"/>' + data[index][index1][0] + '</span>'
+          var name = data[index][index1][0]
+          var package = data[index][index1][1]
+          content += '<span><input value = "' + package + '" type = "checkbox"/>' + name + '</span>'
         }
         content += '</div>'
         all_content += content
       }
       all_content += '</div>'
       rival_content.html(all_content)
+      checked_rival_list()
     }
 
     function rival_check(id, ids){
@@ -615,6 +553,15 @@
       return rival_list
     }
 
+    function checked_rival_list(){
+      var rival_list = '{{ rival_list|safe }}'
+      $('#rival_content input[type=checkbox]').map(function(_, el){
+        if(rival_list.indexOf($(el).attr('value')) > -1){
+          $(el).prop('checked', true)
+        }
+      })
+    }
+
     function on_page_load(){
       is_load = true
       if(tail_is_loading){
@@ -623,7 +570,7 @@
         $('#ads_table').css('opacity', 0.5)
         $('#loading_img').css('display', 'block')
       }
-    }
+    }44
 
     function page_loaded(){
       if(tail_is_loading){
@@ -648,7 +595,7 @@
       if(is_fixed){
         $('#top').css('top', '-50')
       }else{
-
+        //pass
       }
     }
 
@@ -672,7 +619,7 @@
           $('#top').css('top', '-50')
           is_fixed = true
         }else{
-          
+          //pass
         }
       }else if(is_fixed){
         $('#top').css('position', 'absolute')
