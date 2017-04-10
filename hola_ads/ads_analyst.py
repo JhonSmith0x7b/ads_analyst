@@ -42,7 +42,7 @@ class ads_analyst:
 			WHERE 1=1
 			"""
 			if package_name != '':
-				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
+				sql += ' AND package_name = "%s" ' % package_name
 			elif adtype != '':
 				sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
 			if dt_start != '':
@@ -105,27 +105,6 @@ class ads_analyst:
 			sourceapp_result = json.dumps(db_tool.query_by_sql('select app_name from ads group by app_name order by count(app_name) DESC'))
 			result_list = [type_result, geo_reuslt, sourceapp_result]
 			return json.dumps(result_list, ensure_ascii = False)
-		if typical == 'category_test':
-			sql = """
-			select pkg from category_pkg_table where category = '%s'
-			""" % adtype
-			print sql
-			package_list = db_tool.query_sqlite_by_sql(sql)
-			package_list_str = '('
-			for package in package_list:
-				package_list_str += ' "%s", ' % package[0]
-			package_list_str += '"nanimo") '
-			sql = """
-			SELECT *, count( DISTINCT dt) AS cd, 
-			count(DISTINCT geo) AS cg, count(*) AS cc 
-			FROM ads
-			where package_name in %s
-			""" % package_list_str
-			print sql
-			pretime = time.time()
-			result = json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
-			print result, time.time() - pretime
-			pass
 		if typical == 'get_rival_list':
 			rival_type = ["tasty_treats", "slots"]
 			sql = """
@@ -140,6 +119,13 @@ class ads_analyst:
 					if rival[2] == t:
 						return_list[rival_type.index(t)].append(rival)
 			return json.dumps(return_list, ensure_ascii = False)
+			pass
+		if typical == 'associate_package':
+			sql = """
+			select distinct package_name from ads
+			"""
+			print sql
+			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 			pass
 		#deprecate
 		if typical == 'groupby_date_count':

@@ -26,7 +26,12 @@
         <input class = 'me_date_picker' id = 'start_datepicker' type="text" class="form-control" value = "{{dt_start}}" onchange="refresh();">
         TO
         <input class = 'me_date_picker' id = 'end_datepicker' type="text" class="form-control" value = "{{dt_end}}" onchange="refresh();">
-      Package: <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()'/>
+      Package: 
+      <div id = 'package_a_associate'>
+        <input id = 'package_name_selector' value = '{{package_name}}' onchange = 'refresh()' oninput = 'associate_package(this)'/>
+        <div id = "package_associate_area">
+        </div>
+      </div>
         <select class="selectpicker" id = 'sourceapp_selector' data-live-search="false" data-size="5" title = " Source App" onchange = 'refresh()'>
         </select>
         <button id = "rival_button" type="button" class="btn btn-info" data-toggle="collapse" data-target="#rival_content">
@@ -90,6 +95,8 @@
     var BE_PAGE = 1               //will change is success
     var is_fixed = false          // #top is fixed
     var tail_is_loading = false   //change page via auto load
+    var is_associate_package = false //package ajax associate
+    var package_array = ''        //package array
     
     function ajax(url, method, data, callback){
       $.ajax({
@@ -599,6 +606,53 @@
       }
     }
 
+    function get_package(){
+      var url = '/pyanalyst/pyquery'
+      var method = 'post'
+      var data = {
+        'typical': 'associate_package'
+      }
+      ajax(url, method, data, get_package_callback)
+    }
+
+    function get_package_callback(data, error){
+      if(error != ''){
+        console.log('associate_package error ' + error)
+      }else{
+        console.log('get package over')
+        var result = eval(data)
+        package_array = result
+      }
+    }
+
+    function associate_package(el){
+      var associate_area = $('#package_associate_area')
+      var p = $(el).val()
+      if(package_array != '' && p != ''){
+        var offset = 6
+        var associate_str = ''
+        for(var index in package_array){
+          if(package_array[index][0].indexOf(p) > -1 && offset > 0){
+            associate_str += '<li onclick = "choose_package(this)">' + package_array[index][0] + '</li>'
+            offset -= 1
+          }
+
+        }
+        associate_area.html(associate_str)
+        associate_area.css('display', 'inline-block')
+      }else{
+        associate_area.css('display', 'none')
+      }
+    }
+
+
+    function choose_package(el){
+      var e = $(el)
+      $('#package_name_selector').val(e.html())
+      $('#package_associate_area').css('display', 'none')
+      refresh()
+    }
+
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
       data = {{ data|tojson }}
@@ -610,6 +664,7 @@
       get_selector()
       init_tag()
       get_rival_list()
+      get_package()
     }
 
     window.onscroll = function (){
@@ -665,9 +720,26 @@
       padding: 10px;
       display: ;
     }
-    #select_input{
+    #select_input {
       display: ;
       text-align: center;
+    }
+    #package_a_associate{
+      display: inline-block;
+      position: relative;
+    }
+    #package_associate_area{
+      border: 1px solid #9ACCFB; 
+      background-color: white; 
+      text-align: left; 
+      display:none; 
+      position: absolute;
+    }
+    #package_associate_area li{
+      list-style-type: none;
+      background: #FFFFFF;
+      cursor: pointer;
+      padding: 5px;
     }
     #query_button{
       margin: 5px
