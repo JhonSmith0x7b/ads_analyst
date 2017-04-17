@@ -402,7 +402,7 @@
 
     function change_page_callback(data, error){
       if(error != ''){
-        console.log(err)
+        console.log(error)
         if(tail_is_loading){
           tail_is_loading = false
         }else{
@@ -507,7 +507,7 @@
 
     function get_rival_list_callback(data, error){
       if(error != ''){
-        console.log(err.status)
+        console.log(error)
       }else{
         export_to_rival_content(eval(data))
       }
