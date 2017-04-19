@@ -42,6 +42,11 @@
       </div>
 
       <div id = 'select_input'>
+        <div id = "date_range_area">
+          <span id = "three_date_range_selector" class = 'date_range' onclick="change_date_range(this)">3</span>
+          <span id = "seven_date_range_selector" class = 'date_range' onclick="change_date_range(this)">7</span>
+          <span id = "all_date_range_selector" class = 'date_range' onclick="change_date_range(this)">all</span>
+        </div>
         <span id = "search_count"></span>
         搜索条件: 
         <span  class = "query_tag" value = "{{adtype}}" id = 'adtype_input' onclick = "tag_remove(this);">{{adtype}}</span>
@@ -166,12 +171,18 @@
       var sourceapp = $('#sourceapp_input').attr('value')
       var page = ''
       var rival_list = get_rival_list_str()
+      var date_range = ''
+      $('.date_range').map(function(_, el){
+        if($(el).attr('date_sign') == 'signed'){
+          date_range = $(el).html()
+        }
+      })
       var offset = OFFSET
       href_str += '&adtype=' + adtype + '&package_name=' + package_name + '&geo=' + geo + '&dt_start=' + dt_start
       + '&dt_end=' + dt_end + '&page=' + page + '&offset=' 
       + offset + '&rival_list=' + rival_list
-      + '&sourceapp=' + sourceapp
-      window.location.href = href_str;
+      + '&sourceapp=' + sourceapp + '&date_range=' + date_range
+      window.location.href = href_str
     }
 
     //refresh local sign
@@ -293,6 +304,12 @@
       var dt_end = $('#dt_end_input').attr('value')
       var package_name = $('#package_name_input').attr('value')
       var sourceapp = $('#sourceapp_input').attr('value')
+      var date_range = ''
+      $('.date_range').map(function(_, el){
+        if($(el).attr('date_sign') == 'signed'){
+          date_range = $(el).html()
+        }
+      })
       var url = '/pyanalyst/pyquery'
       var method = 'post'
       var data  = {
@@ -304,7 +321,8 @@
           'package_name' : package_name,
           'offset' : OFFSET,
           'rival_list' : '{{ rival_list| safe }}',
-          'sourceapp' : sourceapp
+          'sourceapp' : sourceapp, 
+          'date_range' : date_range
         }
       ajax(url, method, data, page_plugin_init_callback)
       var page = '{{page}}'
@@ -486,6 +504,24 @@
       init_tag_via_id(dt_end_tag, 'dt_end_input')
       var sourceapp_tag = "{{sourceapp}}"
       init_tag_via_id(sourceapp_tag, 'sourceapp_input')
+      var date_range = "{{ date_range }}"
+      if(date_range != ''){
+        switch(date_range){
+          case '3':{
+            change_date_range($('#three_date_range_selector'))
+            break
+          }
+          case '7':{
+            change_date_range($('#seven_date_range_selector'))
+            break
+          }
+          case 'all':{
+            change_date_range($('#all_date_range_selector'))
+            break
+          }
+          default:
+        }
+      }
     }
 
     function init_tag_via_id(tag, elid){
@@ -653,6 +689,32 @@
       refresh()
     }
 
+    function change_date_range(el){
+      $(el).css('border', '2px solid #00CCFF')
+      $('.date_range').map(function(_, el){
+        $(el).css('border', '1px solid #000000')
+        $(el).attr('date_sign', '')
+      })
+      switch($(el).html()){
+        case '3':{
+          $(el).css('border', '2px solid #00CCFF')
+          $(el).attr('date_sign', 'signed')
+          break
+        }
+        case '7':{
+          $(el).css('border', '2px solid #00CCFF')
+          $(el).attr('date_sign', 'signed')
+          break
+        }
+        case 'all':{
+          $(el).css('border', '2px solid #00CCFF')          
+          $(el).attr('date_sign', 'signed')
+          break
+        }
+        default:
+      }
+    }
+
     window.onload = function (){
       console.log('query time: ' + ' {{query_time}} ')
       data = {{ data|tojson }}
@@ -660,9 +722,9 @@
         exprot_data_to_ad_list(data)
       }
       init_datepicker()
+      init_tag()
       page_plugin_init()
       get_selector()
-      init_tag()
       get_rival_list()
       get_package()
     }
@@ -723,6 +785,22 @@
     #select_input {
       display: ;
       text-align: center;
+    }
+    #date_range_area {
+      display: inline-block;
+      float: left;
+      margin-left: 50px;
+    }
+
+    #date_range_area span{
+      background: #FFFFFF;
+      width: 72px;
+      height: 24px;
+      display: inline-block;
+      text-align: center;
+      margin: 5px;
+      border: 1px solid black;
+      cursor: pointer;
     }
     #package_a_associate{
       display: inline-block;

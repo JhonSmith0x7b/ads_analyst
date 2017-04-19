@@ -26,7 +26,7 @@ class ads_analyst:
 			
 	def query_via_parameter(self, typical, request_id = '', icon = '', image = '', 
 		package_name = '', adtype = '', geo = '', dt_start = '', 
-		dt_end = '', page = '', offset = '', rival_list = '', sourceapp = ''):
+		dt_end = '', page = '', offset = '', rival_list = '', sourceapp = '', date_range = ''):
 		db_tool = self.get_db()
 		sql_page = page if page != '' else '1'
 		sql_offset = offset if offset != '' else '10'
@@ -34,6 +34,14 @@ class ads_analyst:
 			sql_page = (int(sql_page) - 1) * int(sql_offset)
 		except:
 			sql_page = '1'
+		if date_range != '':
+			current_date = time.strftime('%Y%m%d')
+			if date_range == '3':
+				date_range = str(int(current_date) - 3)
+			elif date_range == '7':
+				date_range = str(int(current_date) - 7)
+			else:
+				date_range = ''
 		if typical == 'ads_list':
 			sql = """
 			SELECT ads.*, count( DISTINCT dt) AS cd, 
@@ -55,6 +63,8 @@ class ads_analyst:
 				sql += ' AND package_name in %s' % rival_list
 			if sourceapp != '':
 				sql += ' AND app_name = "%s" ' % sourceapp
+			if date_range != '':
+				sql += ' AND dt > "%s"' % date_range
 			sql += ' GROUP BY image, geo '
 			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
@@ -95,6 +105,8 @@ class ads_analyst:
 				sql += ' AND package_name in %s' % rival_list
 			if sourceapp != '':
 				sql += ' AND app_name = "%s"' % sourceapp
+			if date_range != '':
+				sql += ' AND dt > "%s"' % date_range
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		if typical == 'get_selector':
