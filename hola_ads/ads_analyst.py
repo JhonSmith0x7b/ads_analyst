@@ -57,14 +57,14 @@ class ads_analyst:
 				sql += ' AND dt >=  "%s" ' % dt_start
 			if dt_end != '':
 				sql += ' AND dt <= "%s" ' % dt_end
+			if date_range != '':
+				sql += ' AND dt > "%s"' % date_range
 			if geo != '':
 				sql += ' AND geo = "%s" ' % geo
 			if rival_list != '':
 				sql += ' AND package_name in %s' % rival_list
 			if sourceapp != '':
 				sql += ' AND app_name = "%s" ' % sourceapp
-			if date_range != '':
-				sql += ' AND dt > "%s"' % date_range
 			sql += ' GROUP BY image, geo '
 			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
 			print sql
@@ -95,18 +95,18 @@ class ads_analyst:
 				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
 			elif adtype != '':
 				sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
-			if geo != '':
-				sql += ' AND geo = "%s"' % geo
 			if dt_start != '':
 				sql += ' AND dt >= "%s"' % (dt_start)
 			if dt_end != '':
 				sql += ' AND dt <= "%s"' % (dt_end)
+			if date_range != '':
+				sql += ' AND dt > "%s"' % date_range
+			if geo != '':
+				sql += ' AND geo = "%s"' % geo
 			if rival_list != '':
 				sql += ' AND package_name in %s' % rival_list
 			if sourceapp != '':
 				sql += ' AND app_name = "%s"' % sourceapp
-			if date_range != '':
-				sql += ' AND dt > "%s"' % date_range
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		if typical == 'get_selector':
