@@ -400,6 +400,12 @@
       var offset = OFFSET
       var rival_list = '{{ rival_list | safe }}'
       var sourceapp = $('#sourceapp_input').attr('value')
+      var date_range = ''
+      $('.date_range').map(function(_, el){
+        if($(el).attr('date_sign') == 'signed'){
+          date_range = $(el).html()
+        }
+      })
       on_page_load()
       var url = '/pyanalyst/pyquery'
       var method = 'post'
@@ -413,7 +419,8 @@
           'page' : BE_PAGE,
           'offset' : offset,
           'rival_list' : rival_list,
-          'sourceapp' : sourceapp
+          'sourceapp' : sourceapp,
+          'date_range' : date_range
         }
       ajax(url, method, data, change_page_callback)
     }
