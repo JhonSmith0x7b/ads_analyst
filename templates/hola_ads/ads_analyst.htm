@@ -110,6 +110,7 @@
         data: data,
         dataType: 'json',
         success: function(d){
+          console.log('ajax back')
           callback(d, '')
         },
         error: function(e){

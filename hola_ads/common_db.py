@@ -4,6 +4,22 @@ import os
 import sys
 import MySQLdb
 import utils
+from DBUtils.PooledDB import PooledDB
+from flask import current_app
+def create_mysql_db_pool():
+	pool = PooledDB(
+                creator=MySQLdb,
+                use_unicode=False,
+                db = utils.MYSQL_DB,
+                host=utils.MYSQL_HOST,
+                port=utils.MYSQL_PORT,
+                user=utils.MYSQL_USER,
+                passwd=utils.MYSQL_PASSWD,
+                charset=utils.MYSQL_CHARSET,
+                mincached = 6,
+                maxcached = 11,
+                maxconnections=utils.MYSQL_MAXCONNECTIONS)
+	return pool.connection(shareable = True)
 class Common_db:
 	#self.db_path 	db path
 	#self.db db
@@ -27,12 +43,12 @@ class Common_db:
 	# 	return cur.fetchall()
 
 	def __init__(self, nanimo):
-		db = MySQLdb.connect(host = utils.MYSQL_HOST,
-								user = utils.MYSQL_USER,
-								passwd = utils.MYSQL_PASSWD,
-								db = utils.MYSQL_DB)
+		# db = MySQLdb.connect(host = utils.MYSQL_HOST,
+		# 						user = utils.MYSQL_USER,
+		# 						passwd = utils.MYSQL_PASSWD,
+		# 						db = utils.MYSQL_DB)
 		# db = sqlite3.connect(utils.DATABASE_ADS)
-		self.db = db
+		self.db = current_app.db
 		db_s = sqlite3.connect(utils.DATABASE_CATEGORAY)
 		self.db_s = db_s
 		pass

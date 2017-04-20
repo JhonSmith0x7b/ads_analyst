@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
-from flask import Flask, url_for, render_template, g, request, json
+from flask import Flask, url_for, render_template, g, request, json, current_app
 import sqlite3, urllib
 import sys;reload(sys);sys.setdefaultencoding('utf-8')
 from  hola_ads import ads_analyst, common_db, common, utils, category_thinker
 import time
 app = Flask(__name__)
 app.debug = True
+with app.app_context():
+	current_app.db = common_db.create_mysql_db_pool()
+	print current_app
 #g attr list
 #_db_tool  common db tool
 #
@@ -106,4 +109,4 @@ def check_ip():
 		return True
 
 if __name__ == '__main__':
-	app.run(host = '0.0.0.0', threaded=True)
+	app.run(host = '0.0.0.0', threaded=False)
