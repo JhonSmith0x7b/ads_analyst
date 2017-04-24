@@ -43,8 +43,8 @@
 
       <div id = 'select_input'>
         <div id = "date_range_area">
-          <span id = "three_date_range_selector" class = 'date_range' onclick="change_date_range(this)">3</span>
           <span id = "seven_date_range_selector" class = 'date_range' onclick="change_date_range(this)">7</span>
+          <span id = "thirty_date_range_selector" class = 'date_range' onclick="change_date_range(this)">30</span>
           <span id = "all_date_range_selector" class = 'date_range' onclick="change_date_range(this)">all</span>
         </div>
         <span id = "search_count"></span>
@@ -515,8 +515,8 @@
       var date_range = "{{ date_range }}"
       if(date_range != ''){
         switch(date_range){
-          case '3':{
-            change_date_range($('#three_date_range_selector'))
+          case '30':{
+            change_date_range($('#thirty_date_range_selector'))
             break
           }
           case '7':{
@@ -704,7 +704,7 @@
         $(el).attr('date_sign', '')
       })
       switch($(el).html()){
-        case '3':{
+        case '30':{
           $(el).css('border', '2px solid #00CCFF')
           $(el).attr('date_sign', 'signed')
           break

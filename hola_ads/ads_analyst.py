@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from flask import Flask, url_for, render_template, g, request, json
-import sqlite3, time, hashlib
+import sqlite3, time, hashlib, datetime
 import common_db, common, utils, category_thinker
 DATABASE_ADS = utils.DATABASE_ADS
 #g attr list
@@ -20,9 +20,6 @@ class ads_analyst:
 			g._db_tool = db_tool
 		return db_tool
 		pass
-
-	def query(self, typical):
-		db_tool = self.get_db
 			
 	def query_via_parameter(self, typical, request_id = '', icon = '', image = '', 
 		package_name = '', adtype = '', geo = '', dt_start = '', 
@@ -35,40 +32,49 @@ class ads_analyst:
 		except:
 			sql_page = '1'
 		if date_range != '':
-			current_date = time.strftime('%Y%m%d')
-			if date_range == '3':
-				date_range = str(int(current_date) - 3)
+			current_date = datetime.datetime.today().strftime('%Y%m%d')
+			if date_range == '30':
+				sql_date_range = common.delta_date(current_date, date_range)
 			elif date_range == '7':
-				date_range = str(int(current_date) - 7)
+				sql_date_range = common.delta_date(current_date, date_range)
 			else:
-				date_range = ''
+				sql_date_range = ''
 		if typical == 'ads_list':
-			sql = """
-			SELECT ads.*, count( DISTINCT dt) AS cd, 
-			count(*) AS cc
-			FROM ads ads
-			WHERE 1=1
-			"""
-			if package_name != '':
-				sql += ' AND package_name = "%s" ' % package_name
-			elif adtype != '':
-				sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
-			if dt_start != '':
-				sql += ' AND dt >=  "%s" ' % dt_start
-			if dt_end != '':
-				sql += ' AND dt <= "%s" ' % dt_end
-			if date_range != '':
-				sql += ' AND dt > "%s"' % date_range
-			if geo != '':
-				sql += ' AND geo = "%s" ' % geo
-			if rival_list != '':
-				sql += ' AND package_name in %s' % rival_list
-			if sourceapp != '':
-				sql += ' AND app_name = "%s" ' % sourceapp
-			sql += ' GROUP BY image, geo '
-			sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
-			print sql
-			data = db_tool.query_by_sql(sql)
+			data = ''
+			if geo == 'US' and package_name == '' and rival_list == '' and adtype == '' and dt_start == '' and dt_end == '' and sourceapp == '' and int(sql_page) < 9980 and date_range != '7':
+				query_table = 'thirty_monthdate_us_ad' if date_range == '30' else 'thirty_alldate_us_ad'
+				sql = """
+				SELECT * from %s limit %s, %s
+				""" % (query_table, sql_page, sql_offset)
+				print sql
+				data = db_tool.query_sqlite_by_sql(sql)
+			else:
+				sql = """
+				SELECT ads.*, count( DISTINCT dt) AS cd, 
+				count(*) AS cc
+				FROM ads ads
+				WHERE 1=1
+				"""
+				if package_name != '':
+					sql += ' AND package_name = "%s" ' % package_name
+				elif adtype != '':
+					sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
+				if dt_start != '':
+					sql += ' AND dt >=  "%s" ' % dt_start
+				if dt_end != '':
+					sql += ' AND dt <= "%s" ' % dt_end
+				if sql_date_range != '':
+					sql += ' AND dt > "%s"' % sql_date_range
+				if geo != '':
+					sql += ' AND geo = "%s" ' % geo
+				if rival_list != '':
+					sql += ' AND package_name in %s' % rival_list
+				if sourceapp != '':
+					sql += ' AND app_name = "%s" ' % sourceapp
+				sql += ' GROUP BY image, geo '
+				sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
+				print sql
+				data = db_tool.query_by_sql(sql)
 			data_category = []
 			for row in data:
 				result = self.query_adtype_via_package(row[14])
@@ -99,8 +105,8 @@ class ads_analyst:
 				sql += ' AND dt >= "%s"' % (dt_start)
 			if dt_end != '':
 				sql += ' AND dt <= "%s"' % (dt_end)
-			if date_range != '':
-				sql += ' AND dt > "%s"' % date_range
+			if sql_date_range != '':
+				sql += ' AND dt > "%s"' % sql_date_range
 			if geo != '':
 				sql += ' AND geo = "%s"' % geo
 			if rival_list != '':

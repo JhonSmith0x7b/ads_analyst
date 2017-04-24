@@ -16,8 +16,8 @@ def create_mysql_db_pool():
                 user=utils.MYSQL_USER,
                 passwd=utils.MYSQL_PASSWD,
                 charset=utils.MYSQL_CHARSET,
-                mincached = 6,
-                maxcached = 11,
+                mincached = utils.MYSQL_MINCACHED,
+                maxcached = utils.MYSQL_MAXCACHED,
                 maxconnections=utils.MYSQL_MAXCONNECTIONS)
 	return pool.connection(shareable = True)
 class Common_db:

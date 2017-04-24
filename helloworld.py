@@ -27,14 +27,14 @@ def mainpage():
 		page = request.args.get('page', ''), 
 		offset = request.args.get('offset', ''), image = request.args.get('image', ''), 
 		rival_list = request.args.get('rival_list', ''), sourceapp = request.args.get('sourceapp', ''), 
-		date_range = request.args.get('date_range', '7'))
+		date_range = request.args.get('date_range', '30'))
 	query_time = time.time() - pre_time
 	return render_template('hola_ads/ads_analyst.htm', data = query_data.encode('utf-8'),
 		adtype = request.args.get('adtype', ''), geo = request.args.get('geo', 'US'), 
 		dt_start = request.args.get('dt_start', ''), dt_end = request.args.get('dt_end', ''), 
 		page = request.args.get('page', ''), package_name = request.args.get('package_name', ''),
 		query_time = query_time, rival_list = request.args.get('rival_list', ''),
-		sourceapp = request.args.get('sourceapp', ''), date_range = request.args.get('date_range', '7')), 
+		sourceapp = request.args.get('sourceapp', ''), date_range = request.args.get('date_range', '30')), 
 	200 , {'Content-Type':'text/html;charset=utf-8'}
 
 @app.route('/pyanalyst', methods = ['get'])

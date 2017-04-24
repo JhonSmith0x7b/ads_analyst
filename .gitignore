@@ -4,3 +4,4 @@ static/db/category_pkg.db
 *.db
 *.pyc
 *.log
+*.sql
