@@ -31,6 +31,7 @@ class ads_analyst:
 			sql_page = (int(sql_page) - 1) * int(sql_offset)
 		except:
 			sql_page = '1'
+		sql_date_range = date_range
 		if date_range != '':
 			current_date = datetime.datetime.today().strftime('%Y%m%d')
 			if date_range == '30':
