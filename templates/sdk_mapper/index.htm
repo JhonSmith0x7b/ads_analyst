@@ -1,0 +1,435 @@
+
+<html>
+<head>
+  <title>SDK Mapper</title>
+  <link href = "/static/css/bootstrap.css" rel = 'stylesheet'/>
+  <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+  <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.css">
+  <script type = "text/javascript" src = "/static/js/jquery-3.1.0.js"></script>
+  <script type = "text/javascript" src = "/static/js/bootstrap.js"></script>
+</head>
+<body>
+  <div class = 'container'>
+
+
+  <h1>&nbsp;SDK Mapper.</h4>
+  <div class="panel-group log_area" id="log_area">
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#banner_content"
+        aria-expanded="false" class="collapsed"> banner </a></h4>
+      </div>
+      <div id="banner_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#interstitial_content"
+        aria-expanded="false" class="collapsed"> interstital </a></h4>
+      </div>
+      <div id="interstitial_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#reward_content"
+        aria-expanded="false" class="collapsed"> reward </a></h4>
+      </div>
+      <div id="reward_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#games_content"
+        aria-expanded="false" class="collapsed"> games </a></h4>
+      </div>
+      <div id="games_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#trace_content"
+        aria-expanded="false" class="collapsed"> trace </a></h4>
+      </div>
+      <div id="trace_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#csta_content"
+        aria-expanded="false" class="collapsed"> csta </a></h4>
+      </div>
+      <div id="csta_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#accountkit_content"
+        aria-expanded="false" class="collapsed"> accountkit </a></h4>
+      </div>
+      <div id="accountkit_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#ssl08_content"
+        aria-expanded="false" class="collapsed"> ssl08 </a></h4>
+      </div>
+      <div id="ssl08_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#tappsflyer_content"
+        aria-expanded="false" class="collapsed"> tappsflyer </a></h4>
+      </div>
+      <div id="tappsflyer_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+    <div class="row panel panel-default">
+      <div class="panel-heading">
+      <h4 class="panel-title"><a data-toggle="collapse"
+        data-parent="novelTheme" href="#eventappsflyer_content"
+        aria-expanded="false" class="collapsed"> eventappsflyer </a></h4>
+      </div>
+      <div id="eventappsflyer_content" class="panel-collapse collapse novelCollapse"
+        aria-expanded="false" style="height: 0px;">
+
+      </div>
+    </div>
+
+  </div>
+
+  </div>
+
+
+
+
+  {% include 'hola_ads/foot.htm' %}
+</body>
+<script type="text/javascript">
+  function set_log_area(){
+    var data = JSON.parse({{ banner_data | tojson }})
+    //banner
+    var _data = data.banner
+    var _content = $('#banner_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>pkg</td>' +
+    '<td>sdk_ver</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].pkg + '</td>' +
+      '<td>' + _data[index].sdk_ver + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //banner end
+
+    //interstitial
+    var _data = data.interstitial
+    var _content = $('#interstitial_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>pkg</td>' +
+    '<td>sdk_ver</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].pkg + '</td>' +
+      '<td>' + _data[index].sdk_ver + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //interstitial end
+
+    //reward
+    var _data = data.reward
+    var _content = $('#reward_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>packageName</td>' +
+    '<td>platform</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].packageName + '</td>' +
+      '<td>' + _data[index].platform + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //reward end
+
+    //games
+    var _data = data.games
+    var _content = $('#games_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>packageName</td>' +
+    '<td>platform</td>' +
+    '<td>staToken</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].packageName + '</td>' +
+      '<td>' + _data[index].platform + '</td>' +
+      '<td>' + _data[index].staToken + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //games end
+
+    //trace
+    var _data = data.trace
+    var _content = $('#trace_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>pid</td>' +
+    '<td>ch</td>' +
+    '<td>sdk_ver</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].pid + '</td>' +
+      '<td>' + _data[index].ch + '</td>' +
+      '<td>' + _data[index].sdk_ver + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //trace end
+
+    //csta
+    var _data = data.csta
+    var _content = $('#csta_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>pid</td>' +
+    '<td>cid</td>' +
+    '<td>ver</td>' +
+    '<td>userId</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].pid + '</td>' +
+      '<td>' + _data[index].cid + '</td>' +
+      '<td>' + _data[index].ver + '</td>' +
+      '<td>' + _data[index].userId + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //csta end
+
+    //accountkit
+    var _data = data.accountkit
+    var _content = $('#accountkit_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>packageName</td>' +
+    '<td>thirdPartyName</td>' +
+    '<td>platform</td>' +
+    '<td>gameAccountId</td>' +
+    '<td>androidId</td>'+
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].packageName + '</td>' +
+      '<td>' + _data[index].thirdPartyName + '</td>' +
+      '<td>' + _data[index].platform + '</td>' +
+      '<td>' + _data[index].gameAccountId + '</td>' +
+      '<td>' + _data[index].androidId + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //accountkit end
+
+    //ssl08
+    var _data = data.ssl08
+    var _content = $('#ssl08_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>package_name</td>' +
+    '<td>product_id</td>' +
+    '<td>cp_player_id</td>' +
+    '<td>androidid</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].package_name + '</td>' +
+      '<td>' + _data[index].product_id + '</td>' +
+      '<td>' + _data[index].cp_player_id + '</td>' +
+      '<td>' + _data[index].androidid + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //ssl08 end
+
+    //tappsflyer
+    var _data = data.tappsflyer
+    var _content = $('#tappsflyer_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>app_id</td>' +
+    '<td>appsflyerKey</td>' +
+    '<td>android_id</td>' +
+    '<td>af_message</td>' +
+    '<td>response</td>'+
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].app_id + '</td>' +
+      '<td>' + _data[index].appsflyerKey + '</td>' +
+      '<td>' + _data[index].android_id + '</td>' +
+      '<td>' + _data[index].af_message + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //tappsflyer end
+
+    //eventappsflyer
+    var _data = data.eventappsflyer
+    var _content = $('#eventappsflyer_content')
+    content_str = '<table><tr>' +
+    '<td>time</td>' +
+    '<td>code</td>' +
+    '<td>app_id</td>' +
+    '<td>appsflyerKey</td>' +
+    '<td>android_id</td>' +
+    '<td>eventName</td>' +
+    '<td>productId</td>' +
+    '<td>af_revenue</td>' +
+    '<td>af_currency</td>' +
+    '<td>response</td>'+
+    '<td>af_validated</td>' +
+    '<tr>'
+    for(index in _data){
+      content_str += '<tr>' +
+      '<td>' + _data[index].time + '</td>' +
+      '<td>' + _data[index].code + '</td>' +
+      '<td>' + _data[index].app_id + '</td>' +
+      '<td>' + _data[index].appsflyerKey + '</td>' +
+      '<td>' + _data[index].android_id + '</td>' +
+      '<td>' + _data[index].eventName + '</td>' +
+      '<td>' + _data[index].productId + '</td>' +
+      '<td>' + _data[index].af_revenue + '</td>' +
+      '<td>' + _data[index].af_currency + '</td>' +
+      '<td>' + _data[index].af_validated + '</td>' +
+      '<td>' + JSON.stringify(_data[index].response) + '</td>' + 
+      '<tr>'
+    }
+    content_str += '</table>'
+    _content.html(content_str)
+    //eventappsflyer end
+  }
+  window.onload = function(){
+    set_log_area()
+  }
+</script>
+
+<style type="text/css">
+  .log_area{
+    margin: 5px 10px 5px 10px;
+  }
+  #log_area table{
+    width: 100%;
+    margin-top: 5px;
+  }
+  #log_area table tr{
+    padding: 10px;
+  }
+  #log_area table td{
+    padding: 10px;
+    border: 1px solid #000000;
+  }
+</style>
+</html>

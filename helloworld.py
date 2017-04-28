@@ -2,10 +2,12 @@
 from flask import Flask, url_for, render_template, g, request, json, current_app
 import sqlite3, urllib
 import sys;reload(sys);sys.setdefaultencoding('utf-8')
-from  hola_ads import ads_analyst, common_db, common, utils, category_thinker
+from hola_ads import ads_analyst, common_db, common, utils, category_thinker
+from sdk_mapper.sdk_mapper import sdk_mapper
 import time
 app = Flask(__name__)
 app.debug = True
+app.register_blueprint(sdk_mapper)
 with app.app_context():
 	current_app.db = common_db.create_mysql_db_pool()
 	print current_app
@@ -37,7 +39,7 @@ def mainpage():
 		sourceapp = request.args.get('sourceapp', ''), date_range = request.args.get('date_range', '30')), 
 	200 , {'Content-Type':'text/html;charset=utf-8'}
 
-@app.route('/pyanalyst', methods = ['get'])
+@app.route('/pyanalyst', methods = ['get', 'post'])
 def ads_analysis():
 	if not check_ip():
 		return 'IP Forbidd'
@@ -95,6 +97,10 @@ def ad_detail():
 		200, {'Content-Type':'text/html;charset=utf-8'}
 	return render_template('hola_ads/ad_detail.htm', data = '')
 
+@app.route('/test', methods = ['POST', 'GET'])
+def test():
+	print request.args, request.data, request.form
+	return 'succ'
 
 def get_ads():
 	ads = getattr(g, 'ads', None)
@@ -107,6 +113,8 @@ def check_ip():
 	remote_ip = request.remote_addr
 	if remote_ip in utils.ALLOW_IP_LIST:
 		return True
+
+
 
 if __name__ == '__main__':
 	app.run(host = '0.0.0.0', threaded=False)

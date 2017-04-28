@@ -9,6 +9,15 @@ DATABASE_ADS = utils.DATABASE_ADS
 
 #ERROR DIC
 
+class Super_query():
+	def query(self):
+		pass
+
+class Ads_list_query():
+	def query(self):
+		pass
+
+
 class ads_analyst:
 	def __init__(self):
 		pass
