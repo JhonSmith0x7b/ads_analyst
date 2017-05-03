@@ -9,14 +9,75 @@ DATABASE_ADS = utils.DATABASE_ADS
 
 #ERROR DIC
 
-class Super_query():
-	def query(self):
-		pass
+#sql拼接
+class Super_sql_decorator(object):
+    def decorate(self, sql):
+        pass
 
-class Ads_list_query():
-	def query(self):
-		pass
+class Select_decorator(Super_sql_decorator):
+    def __init__(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+        pass
+    def decorate(self, sql):
+        return (sql + ' select ' + self.args) 
+        pass
 
+class From_decorator(Super_sql_decorator):
+    def __init__(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+    def decorate(self, sql):
+        return (sql + ' from ' + self.args)
+        pass
+
+class Where_decorator(Super_sql_decorator):
+    def __init__(self, args, in_args):
+        self.args = args
+        self.in_args = in_args
+    def decorate(self, sql):
+        a = lambda x, y: 'AND %s \'%s\' ' % (str(x), str(y)) if y != '' else ''
+        b = lambda x, y: 'AND %s %s ' % (str(x), str(y)) if y != '' else ''
+        return (sql + ' where 1 = 1 ' +  ' '.join(a(key, self.args[key]) for key in self.args)
+        + ' '.join(b(key, self.in_args[key]) for key in self.in_args))
+        pass
+
+class Groupby_decorator(Super_sql_decorator):
+    def __init__(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+    def decorate(self, sql):
+        return (sql + ' group by ' + self.args)
+        pass
+
+class Having_decorator(Super_sql_decorator):
+    def __init(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+    def decorate(self, sql):
+        return (sql + 'having')
+        pass
+    
+class Orderby_decorator(Super_sql_decorator):
+    def __init__(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+        pass
+    def decorate(self, sql):
+        return (sql + ' order by ' + self.args)
+
+class Limit_decorator(Super_sql_decorator):
+    def __init__(self, args):
+        self.args = ','.join(str(arg) for arg in args)
+        pass
+    def decorate(self, sql):
+        return (sql + ' limit ' + self.args)
+
+class Sql_queryer(object):
+    def __init__(self):
+        self.sql = ''
+        pass
+    def query(self):
+        pass
+    def decorate(self, decorator):
+        self.sql = decorator.decorate(self.sql)
+        pass
+###
 
 class ads_analyst:
 	def __init__(self):
@@ -53,38 +114,43 @@ class ads_analyst:
 			data = ''
 			if geo == 'US' and package_name == '' and rival_list == '' and adtype == '' and dt_start == '' and dt_end == '' and sourceapp == '' and int(sql_page) < 9980 and date_range != '7':
 				query_table = 'thirty_monthdate_us_ad' if date_range == '30' else 'thirty_alldate_us_ad'
-				sql = """
-				SELECT * from %s limit %s, %s
-				""" % (query_table, sql_page, sql_offset)
-				print sql
-				data = db_tool.query_sqlite_by_sql(sql)
+				q = Sql_queryer()
+				q.decorate(Select_decorator(['*']))
+				q.decorate(From_decorator([query_table]))
+				q.decorate(Limit_decorator([sql_page, sql_offset]))
+				print q.sql
+				data = db_tool.query_sqlite_by_sql(q.sql)
 			else:
-				sql = """
-				SELECT ads.*, count( DISTINCT dt) AS cd, 
-				count(*) AS cc
-				FROM ads ads
-				WHERE 1=1
-				"""
-				if package_name != '':
-					sql += ' AND package_name = "%s" ' % package_name
-				elif adtype != '':
-					sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
-				if dt_start != '':
-					sql += ' AND dt >=  "%s" ' % dt_start
-				if dt_end != '':
-					sql += ' AND dt <= "%s" ' % dt_end
-				if sql_date_range != '':
-					sql += ' AND dt > "%s"' % sql_date_range
-				if geo != '':
-					sql += ' AND geo = "%s" ' % geo
-				if rival_list != '':
-					sql += ' AND package_name in %s' % rival_list
-				if sourceapp != '':
-					sql += ' AND app_name = "%s" ' % sourceapp
-				sql += ' GROUP BY image, geo '
-				sql += ' ORDER BY cd DESC LIMIT %s, %s' % (sql_page, sql_offset)
-				print sql
-				data = db_tool.query_by_sql(sql)
+				q = Sql_queryer()
+				q.decorate(Select_decorator([
+					' ads.*', 
+					'  count(DISTINCT dt) AS cd', 
+					'   count(*) as cc']))
+				q.decorate(From_decorator(['ads ads']))
+				q.decorate(Where_decorator({
+					' package_name = ': package_name,
+					'  dt >= ': dt_start,
+					'   dt <= ': dt_end,
+					'    dt > ': sql_date_range,
+					'     geo = ': geo,
+					'      app_name = ': sourceapp
+					}, {
+					' package_name in ': self.query_package_list_by_adtype(adtype),
+					'  package_name in ': rival_list,
+					}))
+				q.decorate(Groupby_decorator([
+					' image',
+					'  geo'
+					]))
+				q.decorate(Orderby_decorator([
+					' cd desc'
+					]))
+				q.decorate(Limit_decorator([
+					sql_page,
+					sql_offset
+					]))
+				print q.sql
+				data = db_tool.query_by_sql(q.sql)
 			data_category = []
 			for row in data:
 				result = self.query_adtype_via_package(row[14])
@@ -104,27 +170,26 @@ class ads_analyst:
 			return  json.dumps(data_s3, ensure_ascii = False)
 			pass
 		if typical == 'query_page_via_type_geo_date':
-			sql = """
-			select count(distinct concat(image, geo)) from ads where 1=1
-			"""
-			if package_name != '':
-				sql += ' AND package_name like "%s" ' % ('%' + package_name + '%')
-			elif adtype != '':
-				sql += 'AND package_name in %s ' % self.query_package_list_by_adtype(adtype)
-			if dt_start != '':
-				sql += ' AND dt >= "%s"' % (dt_start)
-			if dt_end != '':
-				sql += ' AND dt <= "%s"' % (dt_end)
-			if sql_date_range != '':
-				sql += ' AND dt > "%s"' % sql_date_range
-			if geo != '':
-				sql += ' AND geo = "%s"' % geo
-			if rival_list != '':
-				sql += ' AND package_name in %s' % rival_list
-			if sourceapp != '':
-				sql += ' AND app_name = "%s"' % sourceapp
-			print sql
-			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
+			q = Sql_queryer()
+			q.decorate(Select_decorator([
+				'count(distinct concat(image, geo))'
+				]))
+			q.decorate(From_decorator([
+				'ads'
+				]))
+			q.decorate(Where_decorator({
+				'package_name = ': package_name,
+				'  dt >= ': dt_start,
+				'   dt <= ': dt_end,
+				'    dt > ': sql_date_range,
+				'     geo = ': geo,
+				'       app_name = ': sourceapp
+				}, {
+				'package_name in ': self.query_package_list_by_adtype(adtype),
+				' package_name in ': rival_list
+				}))
+			print q.sql
+			return json.dumps(db_tool.query_by_sql(q.sql), ensure_ascii = False)
 		if typical == 'get_selector':
 			type_result = json.dumps(db_tool.query_sqlite_by_sql('select category from category_pkg_table group by category order by count(category) DESC'), 
 				ensure_ascii = False)
@@ -173,9 +238,6 @@ class ads_analyst:
 			print sql
 			return json.dumps(db_tool.query_by_sql(sql), ensure_ascii = False)
 		if typical == 'count_county_type_day':
-			#select type, count(type) as c from ads GROUP BY type order by c desc;
-			#select geo, count(geo) as c from ads GROUP BY geo order by c DESC;
-			#select substr(event_time, 0, 12), count(substr(event_time, 0, 12)) as c from ads group by substr(event_time, 0, 12) order by c desc;
 			type_result = json.dumps(db_tool.query_sqlite_by_sql('select category, 1 from category_pkg_table group by category order by count(category)'), ensure_ascii = False)
 			geo_reuslt = json.dumps(db_tool.query_by_sql('select geo, count(geo) as c from ads_table GROUP BY geo order by c DESC'), ensure_ascii = False)
 			date_result = json.dumps(db_tool.query_by_sql('select dt as d, count(dt) as c from ads_table group by dt order by d desc'), ensure_ascii = False)
@@ -185,6 +247,8 @@ class ads_analyst:
 		
 		pass
 	def query_package_list_by_adtype(self, adtype):
+		if adtype == '':
+			return ''
 		db_tool = self.get_db()
 		sub_sql = """
 		select pkg from category_pkg_table where category like '%s'
