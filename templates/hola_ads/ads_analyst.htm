@@ -6,11 +6,11 @@
     <title>Collections</title>
     <link href = "/static/css/me.css?detail=12" rel = 'stylesheet'/>
     <link href = "/static/css/bootstrap.css?detail=2" rel = 'stylesheet'/>
-    <link rel="stylesheet" href="/static/css/bootstrap-select.css?q=1280549780">
-    <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.css?q=1280549780">
-    <script type = "text/javascript" src = "/static/js/jquery-3.1.0.js?q=1280549780"></script>
-    <script type = "text/javascript" src = "/static/js/bootstrap.js?q=1280549780"></script>
-    <script type = "text/javascript" src = "/static/js/bootstrap-datepicker.js?q=1280549780"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap-select.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.css">
+    <script type = "text/javascript" src = "/static/js/jquery-3.1.0.js"></script>
+    <script type = "text/javascript" src = "/static/js/bootstrap.js"></script>
+    <script type = "text/javascript" src = "/static/js/bootstrap-datepicker.js"></script>
     <script src="/static/js/bootstrap-select.js"></script>
   </head>
   <body>
@@ -499,6 +499,33 @@
       $('#' + element.id).attr('value', '')
     }
 
+    var tags = function(){
+      this.type = "{{adtype}}"
+      this.geo = "{{geo}}"
+      this.package_name = "{{package_name}}"
+      this.dt_start = "{{dt_start}}"
+      this.dt_end = "{{dt_end}}"
+      this.sourceapp = "{{sourceapp}}"
+      this.date_range = "{{ date_range }}"
+      this.update = function(){
+        this.type = type
+      }
+      return {
+        type: this.type,
+        geo: this.geo,
+        package_name: this.package_name,
+        dt_start: this.dt_start,
+        dt_end: this.dt_end,
+        sourceapp: this.sourceapp,
+        date_range: this.date_range,
+        update: this.update
+      }
+    }
+    t = tags()
+    console.log(t.type)
+    t.update('123000')
+    console.log(t.type)
+
     function init_tag(){
       var type_tag = "{{adtype}}"
       init_tag_via_id(type_tag, 'adtype_input')
@@ -621,7 +648,7 @@
         $('#ads_table').css('opacity', 0.5)
         $('#loading_img').css('display', 'block')
       }
-    }44
+    }
 
     function page_loaded(){
       if(tail_is_loading){

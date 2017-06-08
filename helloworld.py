@@ -4,10 +4,12 @@ import sqlite3, urllib
 import sys;reload(sys);sys.setdefaultencoding('utf-8')
 from hola_ads import ads_analyst, common_db, common, utils, category_thinker
 from sdk_mapper.sdk_mapper import sdk_mapper
+from get_pic.get_pic import get_pic
 import time
 app = Flask(__name__)
 app.debug = True
 app.register_blueprint(sdk_mapper)
+app.register_blueprint(get_pic)
 with app.app_context():
 	current_app.db = common_db.create_mysql_db_pool()
 	print current_app

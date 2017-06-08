@@ -5,3 +5,4 @@ static/db/category_pkg.db
 *.pyc
 *.log
 *.sql
+*_common.py

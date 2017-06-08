@@ -112,7 +112,9 @@ class ads_analyst:
 				sql_date_range = ''
 		if typical == 'ads_list':
 			data = ''
-			if geo == 'US' and package_name == '' and rival_list == '' and adtype == '' and dt_start == '' and dt_end == '' and sourceapp == '' and int(sql_page) < 9980 and date_range != '7':
+			if geo == 'US' and package_name == '' and rival_list == '' \
+			and adtype == '' and dt_start == '' and dt_end == '' \
+			and sourceapp == '' and int(sql_page) < 9980 and date_range != '7':
 				query_table = 'thirty_monthdate_us_ad' if date_range == '30' else 'thirty_alldate_us_ad'
 				q = Sql_queryer()
 				q.decorate(Select_decorator(['*']))

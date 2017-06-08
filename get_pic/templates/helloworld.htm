@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Get GP Picture</title>
+	<script type="text/javascript" src = "https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+	<div id = "main">
+		请输入包名: <input type="text" id="package_name_input" onkeydown = "on_keydown();">
+		<button id = "get_pic_button">获取</button>
+		<button id = "help_button">帮助</button>
+	</div>
+	<div id = "content">
+		<div id = "pics">
+		</div>
+		<div id = "videos">
+		</div>
+		<div id = "briefs">
+		</div>
+		<div id = "permissions">
+		</div>
+	</div>
+	<div id = "feet">
+		<button id = "output_button">导出</button>
+		<button id = "top_button">TOP</button>
+	</div>
+	<div id = "result">
+		<textarea>
+			输入包名, 点击获取.
+			勾选出需要的内容(permissions自动包含, 并不是每个游戏都有youtube视频).
+			点击页面最后的导出按钮
+		</textarea>
+	</div>
+</body>
+<script type="text/javascript">
+	function on_keydown(){
+		if (window.event.keyCode == 13){
+			$('#get_pic_button').click()
+		}
+	}
+	window.onload = function(){
+		var button = $('#get_pic_button')
+		button.on('click', function(){
+			var package_name = $('#package_name_input').val()
+			button.attr('disabled', 'true')
+			button.html('loading...')
+			$.ajax({
+				url: '/gppic/get',
+				method: 'post',
+				data: {
+					package_name: package_name
+				},
+				dataType: 'json',
+				success: function(d){
+					deal_button()
+					deal_pics(d[0])
+					deal_videos(d[1])
+					deal_breifs(d[2])
+					deal_permissions(d[3])
+					$('#feet').toggle(true)
+				},
+				error:function(e){
+					deal_button()
+					alert(e.status)
+				}
+			})
+		})
+		var output_button = $('#output_button')
+		output_button.on('click', function(){
+			var checked_pics = new Array()
+			var checked_videos = new Array()
+			var checked_briefs = new Array()
+			var permissions = new Array()
+			$('input[type="checkbox"]:checked').map(function(_, el){
+				switch($(el).attr('sign')){
+					case 'pic':{
+						checked_pics.push($(el).val())
+						break;
+					}
+					case 'video':{
+						checked_videos.push($(el).val())
+						break;
+					}
+					case 'briefs':{
+						checked_briefs.push($(el).val())
+						break;
+					}
+				}
+			})
+			$('#permissions h4').map(function(_, el){
+				permissions.push($(el).html())
+			})
+			$('#result textarea').html(JSON.stringify({
+					'pics': checked_pics,
+					'videos': checked_videos,
+					'briefs': checked_briefs,
+					'permissions': permissions
+				}))
+		})
+		var help_button = $('#help_button')
+		help_button.on('click', function(){
+			alert('输入包名, 点击获取. \n勾选出需要的内容(permissions自动包含, 并不是每个游戏都有youtube视频).\n点击页面最后的导出按钮')
+		})
+		var top_button = $('#top_button')
+		top_button.on('click', function(){
+			window.scroll(0,0)
+		})
+	}
+	function deal_button(){
+		var button = $('#get_pic_button')
+		button.removeAttr('disabled')
+		button.html('获取')
+	}
+
+	function deal_pics(d){
+		var content = $('#pics')
+		var input_s = '<h3>请选择需要的图片......</h3><table>'
+		for( i in d){
+			input_s += '<tr><td><img src = "' + d[i] + '"></img></td>' + 
+			'<td><input type = "checkbox" sign = "pic" value = "' + d[i] + '">' + '</input></td></tr>'
+		}
+		content.html(input_s + '</table>')
+	}
+	function deal_videos(d){
+		var content = $('#videos')
+		var input_s = '<h3>请选择需要的视频......</h3><table>'
+		for( i in d){
+			input_s += '<tr><td><a target = "_blank" href="' + d[i] + '">' + d[i] + '<a/></td>' + 
+			'<td><input type = "checkbox" sign = "video" value = "' + d[i] + '">' + '</input></td></tr>'
+		}
+		content.html(input_s + '</table>')
+	}
+	function deal_breifs(d){
+		var content = $('#briefs')
+		var input_s = '<h3>请选择需要的简介......</h3><table>'
+		for( i in d){
+			input_s += '<tr><td><h3>' + d[i] + '<h3/></td>' + 
+			'<td><input type = "checkbox" sign = "brief" value = "' + d[i] + '">' + '</input></td></tr>'
+		}
+		content.html(input_s + '</table>')
+	}
+	function deal_permissions(d){
+		var content = $('#permissions')
+		var input_s = ''
+		for( i in d){
+			input_s += '<h4>' + d[i] + '<h3/>'
+		}
+		content.html(input_s)
+	}
+</script>
+<style type="text/css">
+	body{
+		background: #EEEEEE
+	}
+	#main{
+		text-align: center;
+		width: 100%;
+		margin-top: 33px;
+	}
+	#main input{
+		width: 100px;
+		height: 18px;
+	}
+	button{
+		width: 96px;
+		height: 36px;
+		margin: 10px;
+	}
+	#pics table{
+		border: solid 1px #000000;
+	}
+	#pics img{
+		height: 200px;
+		margin: 10px;
+	}
+	#videos table{
+		border: solid 1px #000000;
+	}
+	#videos a{
+		display: block;
+	}
+	#briefs table{
+		border: solid 1px #000000;
+	}
+	#briefs h3{
+		display: block;
+	}
+	#permissions h4{
+		display: block;
+	}
+	#content input[type="checkbox"]{
+		zoom: 200%;
+	}
+	#feet {
+		display: none;
+		text-align: center;
+	}
+	#result textarea{
+		width: 100%;
+		height:200px;
+	}
+</style>
+</html>
